@@ -163,10 +163,11 @@ end note
 ## Integration rules
 
 - Laravel uses MySQL and Sanctum bearer tokens; the audit service owns a separate MySQL database.
+- Laravel and the MySQL server use UTC; both Book and Audit database timestamps use this shared server timezone.
 - Stream `book-events` carries `event_id`, `event_type`, `occurred_at`, `actor.id`, `book`, and `changes`.
 - Laravel publishes after commit. The audit service persists uniquely by `event_id`, then acknowledges and emits `audit.log.created`.
 - The audit service validates a bearer token with Laravel before serving logs or accepting Socket.IO.
-- Compose uses health checks, internal database/broker ports, and ignored environment files for secrets.
+- Compose uses health checks and ignored environment files for secrets. MySQL and Redis use their standard ports on the local development host for optional database and Redis visualizers.
 
 ## API contract — v1
 

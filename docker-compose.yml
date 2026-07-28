@@ -1,0 +1,121 @@
+name: book-management-system
+
+services:
+  mysql:
+    image: mysql:8.4
+    command: --default-time-zone=+00:00
+    environment:
+      MYSQL_DATABASE: books
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_BOOK_USER: ${MYSQL_BOOK_USER}
+      MYSQL_BOOK_PASSWORD: ${MYSQL_BOOK_PASSWORD}
+      MYSQL_AUDIT_USER: ${MYSQL_AUDIT_USER}
+      MYSQL_AUDIT_PASSWORD: ${MYSQL_AUDIT_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init-users.sh:/docker-entrypoint-initdb.d/init-users.sh:ro
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    working_dir: /app
+    command: sh -c '[ -d vendor ] || composer install; [ -f .env ] || cp .env.example .env; php artisan key:generate --force; php artisan serve --host=0.0.0.0 --port=8000'
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: books
+      DB_USERNAME: ${MYSQL_BOOK_USER}
+      DB_PASSWORD: ${MYSQL_BOOK_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - ./backend:/app
+      - backend_vendor:/app/vendor
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php -r 'exit(@file_get_contents(\"http://127.0.0.1:8000/up\") ? 0 : 1);'"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  audit-service:
+    build: ./audit-service
+    command: sh -c 'test -d node_modules/.bin || npm ci; npm run dev'
+    environment:
+      PORT: 3000
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: audit
+      MYSQL_USER: ${MYSQL_AUDIT_USER}
+      MYSQL_PASSWORD: ${MYSQL_AUDIT_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      LARAVEL_BASE_URL: http://backend:8000
+    volumes:
+      - ./audit-service:/app
+      - audit_node_modules:/app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  frontend:
+    build: ./frontend
+    command: sh -c 'test -d node_modules/.bin || npm ci; npm run dev -- --host 0.0.0.0'
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    ports:
+      - "5174:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5173 >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+volumes:
+  mysql_data:
+  backend_vendor:
+  audit_node_modules:
+  frontend_node_modules:
