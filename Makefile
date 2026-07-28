@@ -17,7 +17,7 @@ ps:
 
 check:
 	$(COMPOSE) exec backend vendor/bin/pint --test
-	$(COMPOSE) exec backend vendor/bin/phpstan analyse
+	$(COMPOSE) exec backend vendor/bin/phpstan analyse --memory-limit=512M
 	$(COMPOSE) exec backend php artisan test
 
 shell:
