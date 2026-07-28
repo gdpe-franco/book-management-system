@@ -65,4 +65,13 @@ make mysql-audit
 make redis-cli
 ```
 
-Product migrations and seed data will be added in their respective implementation stories.
+## Laravel database bootstrap
+
+For the initial superadmin, first run `make up` once to create the ignored root `.env`. Set `SUPERADMIN_EMAIL` and `SUPERADMIN_PASSWORD` there, then run `make up` again so Compose supplies them to the backend container. Finally run:
+
+```sh
+make exec SERVICE=backend CMD='php artisan migrate'
+make exec SERVICE=backend CMD='php artisan users:provision-superadmin'
+```
+
+The command creates the configured superadmin once. Re-running it is a no-op for that account; it refuses to promote an existing `admin`. Book and audit tables will arrive with their respective features.

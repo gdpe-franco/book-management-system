@@ -6,7 +6,7 @@ Source requirements: `requirements.pdf`.
 
 - Laravel issues Sanctum bearer tokens. Registration creates `admin` users only.
 - `admin` and `superadmin` both authenticate, manage books, and view audit logs. Only `superadmin` may view the full user list. Laravel Policies enforce this.
-- The initial `superadmin` is created by a documented setup seed; the application does not assign or change roles.
+- The initial `superadmin` is created by a documented privileged provisioning command; the application does not assign or change roles.
 - Books have `title`, `author`, `isbn`, and `published_year`; deletion is soft. Successful create, update, and soft-delete operations are audited. Reads are not.
 - Audit logs are append-only. The dashboard loads paginated history from the audit service; after successful persistence, the audit service emits a Socket.IO notification to connected dashboards.
 - Book and audit data use separate MySQL databases. The audit service owns its database.
@@ -28,7 +28,7 @@ Deliver one feature at a time: approve a short PRD in `tasks/`, derive Ralph sto
 ## Feature delivery order
 
 1. **Foundation** — Owner: Compose. Service folders, health checks, environment examples, and developer commands. Complete.
-2. **Authentication and bootstrap** — Owner: Laravel/MySQL. Sanctum bearer registration, login, logout, current-user endpoint, Policies, and initial-superadmin seed.
+2. **Authentication and bootstrap** — Owner: Laravel/MySQL. Sanctum bearer registration, login, logout, current-user endpoint, Policies, and initial-superadmin provisioning command.
 3. **User listing** — Owner: Laravel/MySQL. Superadmin-only paginated user list.
 4. **Book persistence** — Owner: Laravel/MySQL. Book migration, model, soft deletion, factories, and database tests.
 5. **Book CRUD API** — Owner: Laravel. Validated book endpoints, API Resources, Policies, and feature tests.
