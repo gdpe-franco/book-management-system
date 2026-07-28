@@ -27,6 +27,7 @@ admin --> spa : Uses HTTPS
 spa --> api : Books and users\nREST/HTTPS
 spa --> audit : Audit history\nREST/HTTPS
 audit --> spa : New audit log\nSocket.IO / WebSocket
+audit --> api : Validate bearer token\nREST/HTTPS
 api --> mysql : Reads and writes
 api --> redis : Appends events
 audit --> redis : Consumes events
@@ -166,8 +167,15 @@ end note
 - Laravel and the MySQL server use UTC; both Book and Audit database timestamps use this shared server timezone.
 - Stream `book-events` carries `event_id`, `event_type`, `occurred_at`, `actor.id`, `book`, and `changes`.
 - Laravel publishes after commit. The audit service persists uniquely by `event_id`, then acknowledges and emits `audit.log.created`.
-- The audit service validates a bearer token with Laravel before serving logs or accepting Socket.IO.
+- Laravel is the sole bearer-token authority. The audit service delegates validation to Laravel's authenticated `GET /api/v1/me` endpoint and stores no local session or token state.
 - Compose uses health checks and ignored environment files for secrets. MySQL and Redis use their standard ports on the local development host for optional database and Redis visualizers.
+
+### Audit-service authentication
+
+- Vue sends the Sanctum bearer token in the `Authorization` header to Laravel and the audit-history endpoint.
+- For every audit-history request, the audit service forwards that header to Laravel's internal `GET /api/v1/me` endpoint. It returns `401` unless Laravel confirms the token.
+- For the Socket.IO handshake, Vue sends the token through Socket.IO's `auth` payload, not a query parameter. The audit service validates it with Laravel before accepting the connection.
+- The audit service retains only the validated user identity for the active socket; it does not issue, persist, or inspect Sanctum tokens.
 
 ## API contract — v1
 
@@ -178,10 +186,11 @@ All REST endpoints are versioned under `/api/v1` and use JSON. Protected calls s
 | POST | `/auth/register` | Public | Register an `admin`. |
 | POST | `/auth/login` | Public | Return a Sanctum bearer token. |
 | POST | `/auth/logout` | Authenticated | Revoke the current token. |
-| GET | `/me` | Authenticated | Return the current user and role. |
+| GET | `/me` | Authenticated | Laravel: return the current user and role; audit service uses it internally to validate bearer tokens. |
 | GET, POST | `/books` | Authenticated | List active books; create a book. |
 | GET, PATCH, DELETE | `/books/{id}` | Authenticated | Read, update, or soft-delete a book. |
 | GET | `/users` | Superadmin | List users. |
+| GET | `/audit-logs` | Authenticated | Audit service: validate the bearer token with Laravel, then return paginated persisted audit logs. |
 
 Book write fields are `title`, `author`, `isbn`, and `published_year`. Laravel returns API Resources; validation failures use `422`, unauthenticated calls use `401`, and unauthorized calls use `403`.
 
@@ -209,5 +218,5 @@ Laravel appends this JSON message to Redis Stream `book-events` after the MySQL 
 
 - `event_type` is `book.created`, `book.updated`, or `book.deleted`; the last represents a soft deletion.
 - `changes` records before/after values for updates and `deleted_at` for deletion.
-- The audit service uses `event_id` as the `audit_logs` primary key, persists the log, then acknowledges the Stream entry and emits `audit.log.created` with the persisted audit-log JSON.
+- The audit service uses `event_id` as the `audit_logs` primary key, persists the log, then acknowledges the Stream entry and emits `audit.log.created` to connected dashboards. The audit-history endpoint supplies the paginated baseline; Socket.IO appends later logs in real time.
 - Incompatible changes require a new event version; v1 remains supported until its consumers are removed.
