@@ -1,0 +1,8 @@
+# Local planning artifacts
+tasks/
+
+# Local configuration and runtime output
+.env
+.env.*
+!.env.example
+*.log
