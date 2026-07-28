@@ -171,7 +171,6 @@ end note
 - Laravel and the MySQL server use UTC; both Book and Audit database timestamps use this shared server timezone.
 - Stream `book-events` carries `event_id`, `event_type`, `occurred_at`, `actor.id`, `book`, and `changes`.
 - Laravel publishes after commit. The audit service persists uniquely by `event_id`, then acknowledges and emits `audit.log.created`.
-- Laravel is the sole bearer-token authority. The audit service delegates validation to Laravel's authenticated `GET /api/v1/me` endpoint and stores no local session or token state.
 - Compose uses health checks and ignored environment files for secrets. MySQL and Redis use their standard ports on the local development host for optional database and Redis visualizers.
 
 ### Audit-service authentication
@@ -196,7 +195,7 @@ All REST endpoints are versioned under `/api/v1` and use JSON. Protected calls s
 | GET | `/users` | Superadmin | List users. |
 | GET | `/audit-logs` | Authenticated | Audit service: validate the bearer token with Laravel, then return paginated persisted audit logs. |
 
-Book write fields are `title`, `author`, `isbn`, and `published_year`. Laravel returns API Resources; validation failures use `422`, unauthenticated calls use `401`, and unauthorized calls use `403`.
+Book write fields are `title`, `author`, `isbn`, and `published_year`. Laravel returns API Resources. API errors use JSON: `401`, `403`, `404`, and `500` return only a stable `message` (`Unauthenticated.`, `Forbidden.`, `Resource not found.`, or `Server error.`); `422` retains Laravel's `message` and field-level `errors`. Internal error details remain in server logs.
 
 ## Event contract — v1
 
