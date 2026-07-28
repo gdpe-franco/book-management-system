@@ -4,7 +4,7 @@ Source requirements: `requirements.pdf`.
 
 ## Product rules
 
-- Laravel issues Sanctum bearer tokens. Registration creates `admin` users only.
+- Laravel issues 24-hour Sanctum bearer tokens. Registration creates `admin` users only.
 - `admin` and `superadmin` both authenticate, manage books, and view audit logs. Only `superadmin` may view the full user list. Laravel Policies enforce this.
 - The initial `superadmin` is created by a documented privileged provisioning command; the application does not assign or change roles.
 - Books have `title`, `author`, `isbn`, and `published_year`; deletion is soft. Successful create, update, and soft-delete operations are audited. Reads are not.
@@ -28,10 +28,10 @@ Deliver one feature at a time: approve a short PRD in `tasks/`, derive Ralph sto
 ## Feature delivery order
 
 1. **Foundation** — Owner: Compose. Service folders, health checks, environment examples, and developer commands. Complete.
-2. **Authentication and bootstrap** — Owner: Laravel/MySQL. Sanctum bearer registration, login, logout, current-user endpoint, Policies, and initial-superadmin provisioning command.
-3. **User listing** — Owner: Laravel/MySQL. Superadmin-only paginated user list.
+2. **Authentication and bootstrap** — Owner: Laravel/MySQL. Sanctum bearer registration, login, logout, current-user endpoint, route middleware, and initial-superadmin provisioning command.
+3. **User listing** — Owner: Laravel/MySQL. Superadmin-only paginated user list and `UserPolicy`.
 4. **Book persistence** — Owner: Laravel/MySQL. Book migration, model, soft deletion, factories, and database tests.
-5. **Book CRUD API** — Owner: Laravel. Validated book endpoints, API Resources, Policies, and feature tests.
+5. **Book CRUD API** — Owner: Laravel. Validated book endpoints, API Resources, `BookPolicy`, and feature tests.
 6. **Book seed data** — Owner: Laravel. Documented local seed command and optional development-only Open Library importer.
 7. **Book event publishing** — Owner: Laravel/Redis. Publish committed book mutations to `book-events`.
 8. **Audit persistence** — Owner: Audit service/MySQL. Audit schema, database client, and append-only audit-log storage.

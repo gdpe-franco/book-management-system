@@ -1,0 +1,134 @@
+openapi: 3.1.0
+info:
+  title: Book Management System API
+  version: 1.0.0
+  description: Versioned HTTP contract for implemented API endpoints.
+servers:
+  - url: http://localhost:8000
+paths:
+  /api/v1/auth/register:
+    post:
+      tags: [Authentication]
+      summary: Register an admin and issue a bearer token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Admin registered and token issued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /api/v1/auth/login:
+    post:
+      tags: [Authentication]
+      summary: Authenticate an existing user and issue a bearer token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: User authenticated and token issued.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/InvalidCredentials'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [name, email, password, password_confirmation]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+        password_confirmation:
+          type: string
+          format: password
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    User:
+      type: object
+      required: [id, name, email, role]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [admin, superadmin]
+    TokenResponse:
+      type: object
+      required: [data, token, token_type]
+      properties:
+        data:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+          description: Plaintext bearer token, returned only when issued.
+        token_type:
+          type: string
+          const: Bearer
+    ValidationError:
+      type: object
+      required: [message, errors]
+      properties:
+        message:
+          type: string
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+    ErrorMessage:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+  responses:
+    InvalidCredentials:
+      description: Invalid credentials.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    ValidationError:
+      description: Request validation failed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'

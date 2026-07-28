@@ -113,9 +113,13 @@ entity personal_access_tokens {
   --
   tokenable_type : string
   tokenable_id : bigint
-  token : string <<UQ>>
-  abilities : text?
-  expires_at : timestamp?
+  name : text (api)
+  token : char(64) <<UQ, hashed>>
+  abilities : text (["*"])
+  last_used_at : timestamp?
+  expires_at : timestamp? (issued: +24h)
+  created_at : timestamp
+  updated_at : timestamp
 }
 users ||--o{ personal_access_tokens : owns
 @enduml
@@ -179,12 +183,12 @@ end note
 
 ## API contract — v1
 
-All REST endpoints are versioned under `/api/v1` and use JSON. Protected calls send `Authorization: Bearer <token>`.
+All REST endpoints are versioned under `/api/v1` and use JSON. Protected calls send `Authorization: Bearer <token>`. The implemented request and response schemas live in the root `openapi.yaml` contract and are updated with each endpoint.
 
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
-| POST | `/auth/register` | Public | Register an `admin`. |
-| POST | `/auth/login` | Public | Return a Sanctum bearer token. |
+| POST | `/auth/register` | Public | Register an `admin` and return a 24-hour Sanctum bearer token. |
+| POST | `/auth/login` | Public | Return a new 24-hour Sanctum bearer token. |
 | POST | `/auth/logout` | Authenticated | Revoke the current token. |
 | GET | `/me` | Authenticated | Laravel: return the current user and role; audit service uses it internally to validate bearer tokens. |
 | GET, POST | `/books` | Authenticated | List active books; create a book. |
