@@ -1,6 +1,13 @@
 # Agent Guide
 
-Read `PROJECT.md` and `ARCHITECTURE.md` before work. They are authoritative for scope, technical decisions, delivery order, and constraints. The source PDF remains the original requirements reference.
+Read `PROJECT.md` and `ARCHITECTURE.md` before work. The source PDF remains the original requirements reference.
+
+## Documentation ownership
+
+- `PROJECT.md`: product scope, delivery order, and non-goals.
+- `ARCHITECTURE.md`: technical decisions, component boundaries, data model, and API/event contracts.
+- `README.md`: local setup and developer commands.
+- `AGENTS.md`: implementation workflow and code-quality conventions.
 
 ## Operating rules
 
@@ -13,3 +20,11 @@ Read `PROJECT.md` and `ARCHITECTURE.md` before work. They are authoritative for 
 - Run the checks specified by the affected project area. Do not commit broken code, generated runtime files, dependencies that belong in ignored directories, or unrelated changes.
 
 A story is complete only when its acceptance criteria and applicable checks pass, all affected services start together, and durable documentation is current.
+
+## Laravel quality and tests
+
+- Run `make check` for backend changes; it enforces formatting, static analysis, and tests.
+- Follow Laravel conventions: prefer framework facilities, use strict comparisons for known types, and reserve `UPPER_SNAKE_CASE` for true PHP constants.
+- Keep validation at request boundaries, authorization in Policies, and responses in API Resources as those features are introduced.
+- Cover only meaningful functional or security risks. Keep happy and non-happy behavior separate; use data providers only for equivalent variations with the same setup and assertions.
+- Organize feature tests by API behavior under `tests/Feature/<Feature>/`, keep cross-cutting behavior in `tests/Feature/Api/`, and reserve `tests/Unit/` for isolated logic. Name files and methods concisely for behavior and outcome; put scenario detail in data-set labels and assertions.

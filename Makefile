@@ -1,6 +1,6 @@
 COMPOSE := docker compose
 
-.PHONY: up down logs ps shell exec mysql-books mysql-audit redis-cli
+.PHONY: up down logs ps check shell exec mysql-books mysql-audit redis-cli
 
 up:
 	@test -f .env || cp .env.example .env
@@ -14,6 +14,11 @@ logs:
 
 ps:
 	$(COMPOSE) ps
+
+check:
+	$(COMPOSE) exec backend vendor/bin/pint --test
+	$(COMPOSE) exec backend vendor/bin/phpstan analyse
+	$(COMPOSE) exec backend php artisan test
 
 shell:
 	@test -n "$(SERVICE)" || (echo "Usage: make shell SERVICE=<service>"; exit 1)

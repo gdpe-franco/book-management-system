@@ -34,7 +34,10 @@ Useful commands:
 make ps       # service status and health
 make logs     # follow service logs
 make down     # stop services; preserve databases and dependencies
+make check    # Laravel formatting, static analysis, and tests
 ```
+
+`make check` runs Laravel Pint, Larastan/PHPStan (level 5), and the Laravel test suite in that order. It stops at the first failing check.
 
 ## Container commands
 
