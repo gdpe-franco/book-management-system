@@ -26,7 +26,7 @@ Services are available at:
 - MySQL: `127.0.0.1:3306`
 - Redis: `127.0.0.1:6379`
 
-Use your local `.env` values to configure a database manager. Connect with `MYSQL_BOOK_USER` to the `books` database or `MYSQL_AUDIT_USER` to the `audit` database. A Redis visualizer connects to `127.0.0.1:6379`.
+Use your local `.env` values to configure a database manager. Connect with `MYSQL_BOOK_USER` to the `books` database or `MYSQL_AUDIT_USER` to the `audit` database.
 
 Useful commands:
 
@@ -75,6 +75,33 @@ make exec SERVICE=backend CMD='php artisan migrate --seed'
 make exec SERVICE=backend CMD='php artisan users:provision-superadmin'
 ```
 
-The command creates the configured superadmin once. Re-running it is a no-op for that account; it refuses to promote an existing `admin`. Book and audit tables are managed by their respective migrations.
+The command creates the configured superadmin once.
 
-`migrate --seed` runs the built-in `BookSeeder`, which loads a deterministic offline catalogue of 25 books. It is idempotent by ISBN and leaves any existing book unchanged. To reset a local catalogue, run `make exec SERVICE=backend CMD='php artisan migrate:fresh --seed'`. The optional Open Library importer will be documented with its own feature.
+`migrate --seed` runs the built-in `BookSeeder`, which loads a deterministic offline catalogue of 25 books. It is idempotent by ISBN and leaves any existing book unchanged. To reset a local catalogue, run `make exec SERVICE=backend CMD='php artisan migrate:fresh --seed'`.
+
+## Open Library import
+
+For optional development data, import a subject from the [Open Library Search API](https://openlibrary.org/dev/docs/api/search):
+
+```sh
+make exec SERVICE=backend CMD='php artisan books:import-open-library --subject=science_fiction'
+```
+
+Use an Open Library subject slug. Useful options include:
+
+| Subject | Focus |
+| --- | --- |
+| `science_fiction` | Science-fiction works |
+| `fantasy` | Fantasy works |
+| `history` | History works |
+| `biography` | Biographical works |
+| `mystery` | Mystery and detective works |
+| `horror` | Horror works |
+| `romance` | Romance works |
+| `love` | Works tagged with love |
+
+The command requests up to 10 results by default; `--limit` accepts 1 through 200. It imports only complete valid records, skips existing ISBNs without changing them, and performs no runtime synchronization. For example:
+
+```sh
+make exec SERVICE=backend CMD='php artisan books:import-open-library --subject=history --limit=50'
+```
