@@ -58,6 +58,7 @@ services:
       SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD:-}
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      REDIS_DB: 0
     volumes:
       - ./backend:/app
       - backend_vendor:/app/vendor

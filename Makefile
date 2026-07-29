@@ -1,6 +1,6 @@
 COMPOSE := docker compose
 
-.PHONY: up down logs ps check test-db-init shell exec mysql-books mysql-audit redis-cli
+.PHONY: up down logs ps check test-db-init test-redis-init shell exec mysql-books mysql-audit redis-cli redis-test-cli
 
 up:
 	@test -f .env || cp .env.example .env
@@ -15,13 +15,16 @@ logs:
 ps:
 	$(COMPOSE) ps
 
-check: test-db-init
+check: test-db-init test-redis-init
 	$(COMPOSE) exec backend vendor/bin/pint --test
 	$(COMPOSE) exec backend vendor/bin/phpstan analyse --memory-limit=512M
 	$(COMPOSE) exec backend php artisan test
 
 test-db-init:
 	$(COMPOSE) exec mysql sh /docker-entrypoint-initdb.d/init-users.sh
+
+test-redis-init:
+	$(COMPOSE) exec redis redis-cli -n 2 FLUSHDB
 
 shell:
 	@test -n "$(SERVICE)" || (echo "Usage: make shell SERVICE=<service>"; exit 1)
@@ -40,3 +43,6 @@ mysql-audit:
 
 redis-cli:
 	$(COMPOSE) exec redis redis-cli
+
+redis-test-cli:
+	$(COMPOSE) exec redis redis-cli -n 2

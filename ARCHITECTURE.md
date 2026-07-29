@@ -169,8 +169,8 @@ end note
 
 - Laravel uses MySQL and Sanctum bearer tokens; the audit service owns a separate MySQL database.
 - Laravel and the MySQL server use UTC; both Book and Audit database timestamps use this shared server timezone.
-- Stream `book-events` carries `event_id`, `event_type`, `occurred_at`, `actor.id`, `book`, and `changes`.
-- Laravel publishes after commit. The audit service persists uniquely by `event_id`, then acknowledges and emits `audit.log.created`.
+- Laravel appends v1 Book events to Redis Stream `book-events` after commit. Stream fields are scalar: `event_id`, `event_type`, `event_version`, and `occurred_at` are strings; `actor`, `book`, and `changes` are JSON strings decoded by the audit service.
+- Redis Streams is the event queue: the audit service creates consumer group `audit-service` for `book-events`, reads new entries with `XREADGROUP`, persists them, and only then calls `XACK`. Each running audit-service instance uses its own consumer name and uses `XAUTOCLAIM` to retry stale unacknowledged entries; duplicate delivery is safe because `event_id` is unique in `audit_logs`.
 - Compose uses health checks and ignored environment files for secrets. MySQL and Redis use their standard ports on the local development host for optional database and Redis visualizers.
 
 ### Audit-service authentication
@@ -221,5 +221,6 @@ Laravel appends this JSON message to Redis Stream `book-events` after the MySQL 
 
 - `event_type` is `book.created`, `book.updated`, or `book.deleted`; the last represents a soft deletion.
 - `changes` records before/after values for updates and `deleted_at` for deletion.
+- The audit-service mapping is direct: `event_id`, `event_type`, `event_version`, and `occurred_at` map to their same-named columns; `actor.id` maps to `actor_id`; `book` maps to `book_snapshot`; `changes` maps to `changes`; and the audit service assigns `persisted_at` after its insert succeeds.
 - The audit service uses `event_id` as the `audit_logs` primary key, persists the log, then acknowledges the Stream entry and emits `audit.log.created` to connected dashboards. The audit-history endpoint supplies the paginated baseline; Socket.IO appends later logs in real time.
 - Incompatible changes require a new event version; v1 remains supported until its consumers are removed.

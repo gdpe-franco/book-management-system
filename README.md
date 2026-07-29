@@ -34,11 +34,12 @@ Useful commands:
 make ps       # service status and health
 make logs     # follow service logs
 make down     # stop services; preserve databases and dependencies
-make check    # initialize the isolated test database, then run backend checks
+make check    # initialize isolated test stores, then run backend checks
 make test-db-init # initialize the test database for an existing MySQL volume
+make test-redis-init # clear Redis DB 2, used only by tests
 ```
 
-`make check` runs Laravel Pint, Larastan/PHPStan (level 5), and the Laravel test suite in that order. It stops at the first failing check. Tests use the isolated `books_testing` MySQL database; Laravel may reset that schema, but never the local `books` or `audit` data.
+`make check` runs Laravel Pint, Larastan/PHPStan (level 5), and the Laravel test suite in that order. It stops at the first failing check. Tests use `books_testing` in MySQL and Redis database `2`; `make check` clears only those test stores, never local Book, Audit, or Redis event data.
 
 ## Container commands
 
@@ -63,7 +64,8 @@ Open the database or Redis command-line client with the appropriate local servic
 ```sh
 make mysql-books
 make mysql-audit
-make redis-cli
+make redis-cli      # application event broker, Redis DB 0
+make redis-test-cli # isolated PHPUnit broker, Redis DB 2
 ```
 
 ## Laravel database bootstrap
