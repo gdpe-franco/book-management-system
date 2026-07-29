@@ -10,7 +10,7 @@ For a new clone, run:
 make up
 ```
 
-This creates `.env` from `.env.example` when needed, builds the images, initializes the two local databases on the first MySQL start, and starts all services. Do not commit `.env`.
+This creates `.env` from `.env.example` when needed, builds the images, initializes the local application databases on the first MySQL start, and starts all services. Do not commit `.env`.
 
 For a normal work session after `make down`, run the same command:
 
@@ -34,10 +34,11 @@ Useful commands:
 make ps       # service status and health
 make logs     # follow service logs
 make down     # stop services; preserve databases and dependencies
-make check    # Laravel formatting, static analysis, and tests
+make check    # initialize the isolated test database, then run backend checks
+make test-db-init # initialize the test database for an existing MySQL volume
 ```
 
-`make check` runs Laravel Pint, Larastan/PHPStan (level 5), and the Laravel test suite in that order. It stops at the first failing check.
+`make check` runs Laravel Pint, Larastan/PHPStan (level 5), and the Laravel test suite in that order. It stops at the first failing check. Tests use the isolated `books_testing` MySQL database; Laravel may reset that schema, but never the local `books` or `audit` data.
 
 ## Container commands
 
