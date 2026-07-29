@@ -26,4 +26,9 @@ class BookPolicy
     {
         return true;
     }
+
+    public function delete(User $user, Book $book): bool
+    {
+        return true;
+    }
 }

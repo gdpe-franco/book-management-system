@@ -48,4 +48,13 @@ class BookController extends Controller
 
         return BookResource::make($book);
     }
+
+    public function destroy(Book $book): Response
+    {
+        $this->authorize('delete', $book);
+
+        $book->delete();
+
+        return response()->noContent();
+    }
 }
