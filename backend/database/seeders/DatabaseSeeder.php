@@ -8,6 +8,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Feature-owned seeders are run explicitly.
+        $this->call(BookSeeder::class);
     }
 }

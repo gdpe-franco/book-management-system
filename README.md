@@ -71,8 +71,10 @@ make redis-cli
 For the initial superadmin, first run `make up` once to create the ignored root `.env`. Set `SUPERADMIN_EMAIL` and `SUPERADMIN_PASSWORD` there, then run `make up` again so Compose supplies them to the backend container. Finally run:
 
 ```sh
-make exec SERVICE=backend CMD='php artisan migrate'
+make exec SERVICE=backend CMD='php artisan migrate --seed'
 make exec SERVICE=backend CMD='php artisan users:provision-superadmin'
 ```
 
-The command creates the configured superadmin once. Re-running it is a no-op for that account; it refuses to promote an existing `admin`. Book and audit tables will arrive with their respective features.
+The command creates the configured superadmin once. Re-running it is a no-op for that account; it refuses to promote an existing `admin`. Book and audit tables are managed by their respective migrations.
+
+`migrate --seed` runs the built-in `BookSeeder`, which loads a deterministic offline catalogue of 25 books. It is idempotent by ISBN and leaves any existing book unchanged. To reset a local catalogue, run `make exec SERVICE=backend CMD='php artisan migrate:fresh --seed'`. The optional Open Library importer will be documented with its own feature.
