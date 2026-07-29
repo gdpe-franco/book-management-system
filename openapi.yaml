@@ -96,6 +96,27 @@ paths:
           $ref: '#/components/responses/Unauthenticated'
         '422':
           $ref: '#/components/responses/ValidationError'
+    post:
+      tags: [Books]
+      summary: Create a book
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookCreateRequest'
+      responses:
+        '201':
+          description: Book created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
   /api/v1/books/{id}:
     get:
       tags: [Books]
@@ -118,6 +139,35 @@ paths:
           $ref: '#/components/responses/Unauthenticated'
         '404':
           $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Books]
+      summary: Update a book
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookUpdateRequest'
+      responses:
+        '200':
+          description: Book updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 components:
   securitySchemes:
     bearerAuth:
@@ -186,6 +236,40 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/Book'
+    BookCreateRequest:
+      type: object
+      required: [title, author, isbn, published_year]
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        author:
+          type: string
+          maxLength: 255
+        isbn:
+          type: string
+          pattern: '^(?:[0-9]{9}[0-9Xx]|[0-9]{13})$'
+        published_year:
+          type: integer
+          minimum: 1450
+          description: Must not exceed the server's current calendar year.
+    BookUpdateRequest:
+      type: object
+      minProperties: 1
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        author:
+          type: string
+          maxLength: 255
+        isbn:
+          type: string
+          pattern: '^(?:[0-9]{9}[0-9Xx]|[0-9]{13})$'
+        published_year:
+          type: integer
+          minimum: 1450
+          description: Must not exceed the server's current calendar year.
     PaginatedBooks:
       type: object
       required: [data, meta]
@@ -293,4 +377,4 @@ components:
       description: Trimmed, case-insensitive contains filter.
       schema:
         type: string
-        maxLength: 17
+        maxLength: 13

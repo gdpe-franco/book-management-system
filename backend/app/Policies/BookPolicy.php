@@ -16,4 +16,14 @@ class BookPolicy
     {
         return true;
     }
+
+    public function create(User $user): bool
+    {
+        return true;
+    }
+
+    public function update(User $user, Book $book): bool
+    {
+        return true;
+    }
 }

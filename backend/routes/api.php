@@ -11,6 +11,6 @@ Route::prefix('v1')->group(function (): void {
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('me', [AuthController::class, 'me']);
         Route::post('auth/logout', [AuthController::class, 'logout']);
-        Route::apiResource('books', BookController::class)->only(['index', 'show']);
+        Route::apiResource('books', BookController::class)->only(['index', 'show', 'store', 'update']);
     });
 });

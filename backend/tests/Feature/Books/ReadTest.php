@@ -18,7 +18,7 @@ class ReadTest extends TestCase
         Sanctum::actingAs(User::factory()->create());
         Book::factory()->count(16)->create();
 
-        $this->getJson('/api/v1/books')
+        $this->getJson(route('books.index'))
             ->assertOk()
             ->assertJsonCount(15, 'data')
             ->assertJsonPath('meta.per_page', 15)
@@ -34,7 +34,7 @@ class ReadTest extends TestCase
         $book = Book::factory()->create($attributes);
         Book::factory()->create();
 
-        $this->getJson('/api/v1/books?'.http_build_query([$field => " {$value} "]))
+        $this->getJson(route('books.index', [$field => " {$value} "]))
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $book->id);
@@ -54,15 +54,15 @@ class ReadTest extends TestCase
         Sanctum::actingAs(User::factory()->create(['role' => 'superadmin']));
         $book = Book::factory()->create();
 
-        $this->getJson("/api/v1/books/{$book->id}")
+        $this->getJson(route('books.show', $book))
             ->assertOk()
             ->assertJsonPath('data.id', $book->id);
     }
 
     #[DataProvider('protectedEndpoints')]
-    public function test_requires_authentication(string $uri): void
+    public function test_requires_authentication(string $name, array $parameters = []): void
     {
-        $this->getJson($uri)
+        $this->getJson(route($name, $parameters))
             ->assertUnauthorized()
             ->assertExactJson(['message' => 'Unauthenticated.']);
     }
@@ -70,8 +70,8 @@ class ReadTest extends TestCase
     public static function protectedEndpoints(): array
     {
         return [
-            'list' => ['/api/v1/books'],
-            'show' => ['/api/v1/books/1'],
+            'list' => ['books.index'],
+            'show' => ['books.show', [1]],
         ];
     }
 
@@ -80,7 +80,7 @@ class ReadTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create());
 
-        $this->getJson("/api/v1/books?{$parameter}={$value}")
+        $this->getJson(route('books.index', [$parameter => $value]))
             ->assertUnprocessable()
             ->assertJsonValidationErrors([$parameter]);
     }
@@ -97,7 +97,7 @@ class ReadTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create());
 
-        $this->getJson('/api/v1/books?isbn='.str_repeat('1', 18))
+        $this->getJson(route('books.index', ['isbn' => str_repeat('1', 14)]))
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['isbn']);
     }
@@ -106,7 +106,7 @@ class ReadTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->create());
 
-        $this->getJson('/api/v1/books/1')
+        $this->getJson(route('books.show', 1))
             ->assertNotFound()
             ->assertExactJson(['message' => 'Resource not found.']);
     }

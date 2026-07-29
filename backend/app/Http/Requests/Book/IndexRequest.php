@@ -24,7 +24,7 @@ class IndexRequest extends FormRequest
         return [
             'title' => ['nullable', 'string', 'max:255'],
             'author' => ['nullable', 'string', 'max:255'],
-            'isbn' => ['nullable', 'string', 'max:17'],
+            'isbn' => ['nullable', 'string', 'max:13'],
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'between:1,100'],
         ];

@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable(['title', 'author', 'isbn', 'published_year'])]
 class Book extends Model
 {
+    public const ISBN_REGEX = '/^(?:\d{9}[\dXx]|\d{13})$/';
+
     /** @use HasFactory<BookFactory> */
     use HasFactory, SoftDeletes;
 
