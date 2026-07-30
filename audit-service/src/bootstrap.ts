@@ -2,12 +2,18 @@ import type { Server } from 'node:http';
 import { createHealthServer } from './http/health-server.js';
 
 export type StorageInitializer = () => Promise<unknown>;
+export type ConsumptionInitializer = () => Promise<unknown>;
 
-export async function startServer(port: number, initializeStorage: StorageInitializer): Promise<Server> {
+export async function startServer(
+  port: number,
+  initializeStorage: StorageInitializer,
+  initializeConsumption: ConsumptionInitializer = async () => undefined,
+): Promise<Server> {
   try {
     await initializeStorage();
+    await initializeConsumption();
   } catch {
-    throw new Error('Audit storage initialization failed.');
+    throw new Error('Audit service initialization failed.');
   }
 
   const server = createHealthServer();

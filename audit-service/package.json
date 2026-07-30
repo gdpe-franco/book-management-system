@@ -20,6 +20,7 @@
     "typescript-eslint": "^8.65.0"
   },
   "dependencies": {
-    "mysql2": "^3.23.2"
+    "mysql2": "^3.23.2",
+    "redis": "^6.1.0"
   }
 }

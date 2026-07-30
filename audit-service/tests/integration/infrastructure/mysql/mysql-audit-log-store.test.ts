@@ -5,6 +5,9 @@ import { PersistAuditEvent } from '../../../../src/application/persist-audit-eve
 import { createMysqlPool, mysqlConfigFromEnvironment } from '../../../../src/infrastructure/mysql/connection.js';
 import { applyMigrations } from '../../../../src/infrastructure/mysql/migrations.js';
 import { MysqlAuditLogStore } from '../../../../src/infrastructure/mysql/mysql-audit-log-store.js';
+import { assertMysqlTestEnvironment } from '../../test-environment.js';
+
+assertMysqlTestEnvironment();
 
 const pool = createMysqlPool(mysqlConfigFromEnvironment('MYSQL_TEST'));
 

@@ -44,7 +44,7 @@ make test-redis-init # clear Redis DB 2, used only by tests
 
 `make check` runs Laravel Pint, Larastan/PHPStan (level 5), and the Laravel test suite in that order. It stops at the first failing check. Tests use `books_testing` in MySQL and Redis database `2`; `make check` clears only those test stores, never local Book, Audit, or Redis event data.
 
-`make audit-check` runs the Audit service ESLint check, TypeScript check, and Node.js tests in a one-off `audit-tests` container. Only that container receives the `audit_testing` credentials; the long-running Audit service receives only its `audit` credentials. Tests remove only their own `audit_testing` tables and never read or write the local `audit` database.
+`make audit-check` runs the Audit service ESLint check, TypeScript check, and Node.js tests in the running `audit-service` container. The service has separately named `*_TEST` settings; integration tests verify that they target `audit_testing` and Redis DB `2` before connecting. Tests remove only their own `audit_testing` tables and never read or write the local `audit` database.
 
 ## Container commands
 

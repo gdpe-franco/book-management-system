@@ -31,7 +31,7 @@ A story is complete only when its acceptance criteria and applicable checks pass
 
 ## Audit-service quality and tests
 
-- Run `make audit-check` for Audit-service changes; it uses a one-off test container to lint, typecheck, and run Node.js tests against the isolated `audit_testing` database. The long-running Audit service must not receive test credentials.
+- Run `make audit-check` for Audit-service changes; it runs lint, typecheck, and Node.js tests in the Audit-service container using explicitly named `*_TEST` settings and the isolated `audit_testing` database.
 - Keep domain and application code independent of transport, database-driver, and configuration imports. Put those concerns in infrastructure adapters and the composition root.
-- Use Node's built-in test runner for focused Audit-service tests. Tests must use `audit_testing` and must never read or write the local `audit` database.
+- Use Node's built-in test runner for focused Audit-service tests. Integration tests must assert their `MYSQL_TEST_DATABASE` and `REDIS_TEST_DB` targets before connecting; they must use `audit_testing` and Redis DB `2`, never the local `audit` database or Redis DB `0`.
 - Place isolated tests in `audit-service/tests/unit/` and real dependency tests in `audit-service/tests/integration/`; mirror the relevant source path beneath each level.

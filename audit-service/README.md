@@ -20,6 +20,7 @@ The domain and application layers never import MySQL, Redis, HTTP, Socket.IO, or
 
 - Startup applies pending MySQL migrations before binding the health server.
 - `GET /health` returns `200` only after that initialization succeeds.
+- Startup also creates or joins Redis Stream `book-events` consumer group `audit-service` with an instance-specific consumer name.
 - `PersistAuditEvent` validates decoded v1 Book events and sends them to the `AuditLogStore` port.
 - `MysqlAuditLogStore` is the current adapter. It records one row per `event_id` and returns `already_exists` for duplicate delivery.
 

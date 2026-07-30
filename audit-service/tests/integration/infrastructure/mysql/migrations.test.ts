@@ -3,6 +3,9 @@ import test from 'node:test';
 import type { RowDataPacket } from 'mysql2/promise';
 import { createMysqlPool, mysqlConfigFromEnvironment } from '../../../../src/infrastructure/mysql/connection.js';
 import { applyMigrations } from '../../../../src/infrastructure/mysql/migrations.js';
+import { assertMysqlTestEnvironment } from '../../test-environment.js';
+
+assertMysqlTestEnvironment();
 
 const pool = createMysqlPool(mysqlConfigFromEnvironment('MYSQL_TEST'));
 

@@ -20,8 +20,8 @@ check: test-db-init test-redis-init
 	$(COMPOSE) exec backend vendor/bin/phpstan analyse --memory-limit=512M
 	$(COMPOSE) exec backend php artisan test
 
-audit-check: test-audit-db-init
-	$(COMPOSE) --profile test run --rm --no-deps audit-tests
+audit-check: test-audit-db-init test-redis-init
+	$(COMPOSE) exec audit-service sh -c 'npm run lint && npm run typecheck && npm test'
 
 test-db-init:
 	$(COMPOSE) exec mysql sh /docker-entrypoint-initdb.d/init-users.sh
