@@ -1,14 +1,9 @@
-import { createServer } from 'node:http';
+import { startServer } from './bootstrap.js';
+import { initializeStorage } from './infrastructure/mysql/initialize-storage.js';
 
 const port = Number(process.env.PORT ?? 3000);
 
-createServer((request, response) => {
-  if (request.url === '/health') {
-    response.writeHead(200, { 'content-type': 'application/json' });
-    response.end(JSON.stringify({ status: 'ok' }));
-    return;
-  }
-
-  response.writeHead(404);
-  response.end();
-}).listen(port, '0.0.0.0');
+void startServer(port, initializeStorage).catch(() => {
+  console.error('Audit service startup failed.');
+  process.exitCode = 1;
+});

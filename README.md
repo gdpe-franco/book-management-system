@@ -37,7 +37,7 @@ make ps       # service status and health
 make logs     # follow service logs
 make down     # stop services; preserve databases and dependencies
 make check    # initialize isolated test stores, then run backend checks
-make audit-check # initialize the isolated audit test database, then typecheck and test the audit service
+make audit-check # initialize the isolated audit test database, then lint, typecheck, and test the audit service
 make test-db-init # initialize the test database for an existing MySQL volume
 make test-redis-init # clear Redis DB 2, used only by tests
 ```
