@@ -139,19 +139,20 @@ skinparam entity {
   BackgroundColor #6B7280
 }
 entity audit_logs {
-  * event_id : char(36) <<PK>>
+  * event_id : char(36) <<PK, NOT NULL>>
   --
-  event_type : string
-  event_version : integer
-  occurred_at : timestamp
-  actor_id : bigint
-  book_snapshot : json
-  changes : json
-  persisted_at : timestamp
+  event_type : varchar(64) <<NOT NULL>>
+  event_version : smallint unsigned <<NOT NULL, CHECK > 0>>
+  occurred_at : timestamp(6) <<NOT NULL>>
+  actor_id : bigint unsigned <<NOT NULL>>
+  book_snapshot : json <<NOT NULL>>
+  changes : json <<NOT NULL>>
+  persisted_at : timestamp(6) <<NOT NULL, default current timestamp>>
 }
 note right of audit_logs
   actor_id is a reference, not a foreign key:
   Laravel owns users and books.
+  Audit logs are append-only; there is no updated_at.
 end note
 @enduml
 ```
@@ -164,6 +165,10 @@ end note
 | Audit service | events, audit logs, real-time notifications | books, users, book database |
 | Vue | interface and local state | business rules or databases |
 | Redis Streams | event transport | system-of-record data |
+
+### Audit-service structure
+
+The Node.js Audit service uses hexagonal architecture. Its domain and application layers define audit-event data and use cases without importing HTTP, Redis, MySQL, Socket.IO, or environment APIs. Ports are interfaces owned by those layers; infrastructure adapters implement them for MySQL persistence, Redis Stream consumption, Laravel token validation, and Socket.IO notification. The composition root is the only place that reads configuration and wires adapters to use cases. This permits the same persistence use case to be invoked by the upcoming Redis adapter, while later HTTP and Socket.IO adapters remain independent delivery mechanisms.
 
 ## Integration rules
 

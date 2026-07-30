@@ -12,6 +12,8 @@ make up
 
 This creates `.env` from `.env.example` when needed, builds the images, initializes the local application databases on the first MySQL start, and starts all services. Do not commit `.env`.
 
+The generated `.env` includes deterministic local-only Audit credentials so a recruiter can start the project with one command. Override them in `.env` for personal local use; never use those defaults outside local development.
+
 For a normal work session after `make down`, run the same command:
 
 ```sh
@@ -35,11 +37,14 @@ make ps       # service status and health
 make logs     # follow service logs
 make down     # stop services; preserve databases and dependencies
 make check    # initialize isolated test stores, then run backend checks
+make audit-check # initialize the isolated audit test database, then typecheck and test the audit service
 make test-db-init # initialize the test database for an existing MySQL volume
 make test-redis-init # clear Redis DB 2, used only by tests
 ```
 
 `make check` runs Laravel Pint, Larastan/PHPStan (level 5), and the Laravel test suite in that order. It stops at the first failing check. Tests use `books_testing` in MySQL and Redis database `2`; `make check` clears only those test stores, never local Book, Audit, or Redis event data.
+
+`make audit-check` runs the Audit service ESLint check, TypeScript check, and Node.js tests in a one-off `audit-tests` container. Only that container receives the `audit_testing` credentials; the long-running Audit service receives only its `audit` credentials. Tests remove only their own `audit_testing` tables and never read or write the local `audit` database.
 
 ## Container commands
 

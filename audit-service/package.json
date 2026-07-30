@@ -6,11 +6,20 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "migrate": "tsx src/infrastructure/mysql/migrate.ts",
+    "test": "node --import tsx --test --test-concurrency=1 tests/*.test.ts"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^22.15.3",
+    "eslint": "^10.8.0",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.65.0"
+  },
+  "dependencies": {
+    "mysql2": "^3.23.2"
   }
 }

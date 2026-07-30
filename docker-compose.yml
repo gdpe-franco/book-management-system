@@ -11,8 +11,10 @@ services:
       MYSQL_BOOK_PASSWORD: ${MYSQL_BOOK_PASSWORD}
       MYSQL_BOOK_TEST_USER: ${MYSQL_BOOK_TEST_USER:-books_test}
       MYSQL_BOOK_TEST_PASSWORD: ${MYSQL_BOOK_TEST_PASSWORD:-change-me-books-test}
-      MYSQL_AUDIT_USER: ${MYSQL_AUDIT_USER}
-      MYSQL_AUDIT_PASSWORD: ${MYSQL_AUDIT_PASSWORD}
+      MYSQL_AUDIT_USER: ${MYSQL_AUDIT_USER:-audit_app}
+      MYSQL_AUDIT_PASSWORD: ${MYSQL_AUDIT_PASSWORD:-change-me-audit}
+      MYSQL_AUDIT_TEST_USER: ${MYSQL_AUDIT_TEST_USER:-audit_test}
+      MYSQL_AUDIT_TEST_PASSWORD: ${MYSQL_AUDIT_TEST_PASSWORD:-change-me-audit-test}
     volumes:
       - mysql_data:/var/lib/mysql
       - ./docker/mysql/init-users.sh:/docker-entrypoint-initdb.d/init-users.sh:ro
@@ -84,8 +86,8 @@ services:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_DATABASE: audit
-      MYSQL_USER: ${MYSQL_AUDIT_USER}
-      MYSQL_PASSWORD: ${MYSQL_AUDIT_PASSWORD}
+      MYSQL_USER: ${MYSQL_AUDIT_USER:-audit_app}
+      MYSQL_PASSWORD: ${MYSQL_AUDIT_PASSWORD:-change-me-audit}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       LARAVEL_BASE_URL: http://backend:8000
@@ -105,6 +107,23 @@ services:
       timeout: 3s
       retries: 20
       start_period: 10s
+
+  audit-tests:
+    profiles: ["test"]
+    build: ./audit-service
+    command: sh -c 'npm run lint && npm run typecheck && npm test'
+    environment:
+      MYSQL_TEST_HOST: mysql
+      MYSQL_TEST_PORT: 3306
+      MYSQL_TEST_DATABASE: audit_testing
+      MYSQL_TEST_USER: ${MYSQL_AUDIT_TEST_USER:-audit_test}
+      MYSQL_TEST_PASSWORD: ${MYSQL_AUDIT_TEST_PASSWORD:-change-me-audit-test}
+    volumes:
+      - ./audit-service:/app
+      - audit_node_modules:/app/node_modules
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   frontend:
     build: ./frontend
