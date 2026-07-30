@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "migrate": "tsx src/infrastructure/mysql/migrate.ts",
-    "test": "node --import tsx --test --test-concurrency=1 tests/*.test.ts"
+    "test": "node --import tsx --test --test-concurrency=1 'tests/**/*.test.ts'"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
