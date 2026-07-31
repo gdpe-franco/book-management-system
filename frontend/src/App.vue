@@ -1,7 +1,15 @@
 <script setup lang="ts">
-import { RouterView } from "vue-router";
+import { useRoute, RouterView } from "vue-router";
+import AppShell from "./components/AppShell.vue";
+
+const route = useRoute();
 </script>
 
 <template>
-  <RouterView />
+  <RouterView v-slot="{ Component }">
+    <AppShell v-if="route.meta.requiresAuth">
+      <component :is="Component" />
+    </AppShell>
+    <component :is="Component" v-else />
+  </RouterView>
 </template>

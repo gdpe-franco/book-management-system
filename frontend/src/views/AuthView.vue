@@ -82,7 +82,6 @@ async function submit(): Promise<void> {
   <main class="auth-page">
     <Card class="auth-card">
       <template #title>{{ title }}</template>
-      <template #subtitle>Book Management System</template>
       <template #content>
         <form class="auth-form" @submit.prevent="submit">
           <Message v-for="error in errors" :key="error" severity="error">{{

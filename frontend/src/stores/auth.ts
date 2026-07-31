@@ -70,6 +70,21 @@ export const useAuthStore = defineStore("auth", {
       return true;
     },
 
+    async logout(): Promise<void> {
+      try {
+        if (this.token !== null) {
+          await fetch("/api/v1/auth/logout", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${this.token}` },
+          });
+        }
+      } catch {
+        // Local logout must still succeed when Laravel is unavailable.
+      } finally {
+        this.clear();
+      }
+    },
+
     async fetchUser(token: string): Promise<User | null> {
       try {
         const response = await fetch("/api/v1/me", {

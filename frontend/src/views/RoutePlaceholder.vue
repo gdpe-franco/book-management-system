@@ -6,7 +6,7 @@ defineProps<{ title: string; description: string }>();
 </script>
 
 <template>
-  <main class="placeholder-page">
+  <section class="feature-placeholder">
     <Card class="placeholder-card">
       <template #title>{{ title }}</template>
       <template #content>
@@ -16,5 +16,5 @@ defineProps<{ title: string; description: string }>();
         <Button label="Book Management System" disabled />
       </template>
     </Card>
-  </main>
+  </section>
 </template>

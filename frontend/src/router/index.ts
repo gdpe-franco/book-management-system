@@ -2,12 +2,15 @@ import { createRouter, createWebHistory } from "vue-router";
 import type { RouteMeta, RouteRecordRaw } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import AuthView from "../views/AuthView.vue";
+import DashboardView from "../views/DashboardView.vue";
+import ProfileView from "../views/ProfileView.vue";
 import RoutePlaceholder from "../views/RoutePlaceholder.vue";
 
 declare module "vue-router" {
   interface RouteMeta {
     guestOnly?: boolean;
     requiresAuth?: boolean;
+    requiresSuperadmin?: boolean;
   }
 }
 
@@ -26,15 +29,8 @@ const route = (
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    route(
-      "/",
-      "Dashboard",
-      "Your authenticated dashboard will be available here.",
-      { requiresAuth: true },
-    ),
-    route("/profile", "Profile", "Your profile will be available here.", {
-      requiresAuth: true,
-    }),
+    { path: "/", component: DashboardView, meta: { requiresAuth: true } },
+    { path: "/profile", component: ProfileView, meta: { requiresAuth: true } },
     route(
       "/books",
       "Books",
@@ -49,6 +45,7 @@ const router = createRouter({
     ),
     route("/users", "Users", "User management is deferred until handoff.", {
       requiresAuth: true,
+      requiresSuperadmin: true,
     }),
     {
       path: "/login",
@@ -72,6 +69,8 @@ router.beforeEach(async (to) => {
   await auth.restore();
 
   if (to.meta.requiresAuth && !auth.isAuthenticated) return "/login";
+  if (to.meta.requiresSuperadmin && auth.user?.role !== "superadmin")
+    return "/";
   if (to.meta.guestOnly && auth.isAuthenticated) return "/";
 });
 
