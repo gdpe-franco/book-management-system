@@ -4,7 +4,7 @@ COMPOSE := docker compose
 
 up:
 	@test -f .env || cp .env.example .env
-	$(COMPOSE) up --build -d
+	$(COMPOSE) up --build --wait
 
 down:
 	$(COMPOSE) down

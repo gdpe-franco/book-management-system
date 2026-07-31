@@ -1,5 +1,5 @@
 #!/bin/sh
-set -eu
+set -e
 
 MYSQL_PWD="${MYSQL_ROOT_PASSWORD}" mysql -uroot <<SQL
 CREATE USER IF NOT EXISTS '${MYSQL_BOOK_USER}'@'%' IDENTIFIED BY '${MYSQL_BOOK_PASSWORD}';

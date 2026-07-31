@@ -1,6 +1,10 @@
 # Local planning artifacts
 tasks/
 
+# Local editor and reference artifacts
+.vscode/
+requirements.pdf
+
 # Local configuration and runtime output
 .env
 .env.*
