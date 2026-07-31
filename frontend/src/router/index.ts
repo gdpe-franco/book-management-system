@@ -4,6 +4,7 @@ import { useAuthStore } from "../stores/auth";
 import AuthView from "../views/AuthView.vue";
 import DashboardView from "../views/DashboardView.vue";
 import ProfileView from "../views/ProfileView.vue";
+import AuditLogsView from "../views/AuditLogsView.vue";
 import RoutePlaceholder from "../views/RoutePlaceholder.vue";
 
 declare module "vue-router" {
@@ -36,12 +37,11 @@ const router = createRouter({
       component: () => import("../views/books/View.vue"),
       meta: { requiresAuth: true },
     },
-    route(
-      "/audit-logs",
-      "Audit logs",
-      "Audit history will be available in a later dashboard feature.",
-      { requiresAuth: true },
-    ),
+    {
+      path: "/audit-logs",
+      component: AuditLogsView,
+      meta: { requiresAuth: true },
+    },
     route("/users", "Users", "User management is deferred until handoff.", {
       requiresAuth: true,
       requiresSuperadmin: true,

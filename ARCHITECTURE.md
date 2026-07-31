@@ -183,6 +183,7 @@ The Node.js Audit service uses hexagonal architecture. Its domain and applicatio
 - Vue sends the Sanctum bearer token in the `Authorization` header to Laravel and the audit-history endpoint.
 - For every audit-history request, the audit service forwards that header to Laravel's internal `GET /api/v1/me` endpoint. It returns `401` unless Laravel confirms the token.
 - For the Socket.IO handshake, Vue sends the complete bearer authorization value through `auth.authorization`, not a query parameter. The audit service forwards it unchanged to Laravel and accepts the connection only when Laravel confirms it.
+- The Audit HTTP adapter allows the configured `FRONTEND_ORIGIN` to send browser requests and the `Authorization` header to the Audit-history endpoint; this is required because the dashboard reaches the Audit-service host directly.
 - Each accepted Socket.IO connection has a maximum 15-minute lifetime, then must reconnect and complete a fresh Laravel validation. A Laravel logout therefore prevents new connections immediately and ends an already-open connection within at most 15 minutes.
 - The audit service retains no bearer token or user session state after the handshake; it does not issue, persist, inspect, or cache Sanctum tokens.
 

@@ -33,12 +33,14 @@ void startServer(
     void consumeNewEvents(stream, auditLogNotifier);
   },
   () => {
+    const frontendOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:5174';
     const validateAuditAccess = new ValidateAuditAccess(new LaravelTokenValidator(requiredEnvironment('LARAVEL_BASE_URL')));
     const server = createAuditServer(
       validateAuditAccess,
       new ListAuditLogs(new MysqlAuditLogReader(createMysqlPool(mysqlConfigFromEnvironment()))),
+      frontendOrigin,
     );
-    const socketServer = attachAuditSocketServer(server, process.env.FRONTEND_ORIGIN ?? 'http://localhost:5174');
+    const socketServer = attachAuditSocketServer(server, frontendOrigin);
 
     authorizeAuditSockets(socketServer, validateAuditAccess);
     auditLogNotifier = new SocketIoAuditLogNotifier(socketServer);

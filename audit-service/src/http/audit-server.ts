@@ -17,9 +17,25 @@ export function createHealthServer(): Server {
   });
 }
 
-export function createAuditServer(validateAuditAccess: ValidateAuditAccess, listAuditLogs: ListAuditLogs): Server {
+export function createAuditServer(
+  validateAuditAccess: ValidateAuditAccess,
+  listAuditLogs: ListAuditLogs,
+  frontendOrigin: string = 'http://localhost:5174',
+): Server {
   return createServer(async (request, response) => {
     const url = new URL(request.url ?? '/', 'http://audit-service');
+
+    response.setHeader('access-control-allow-origin', frontendOrigin);
+    response.setHeader('access-control-allow-headers', 'Authorization');
+    response.setHeader('access-control-allow-methods', 'GET, OPTIONS');
+    response.setHeader('vary', 'Origin');
+
+    if (request.method === 'OPTIONS' && url.pathname === '/api/v1/audit-logs') {
+      response.writeHead(204);
+      response.end();
+
+      return;
+    }
 
     if (request.method === 'GET' && url.pathname === '/health') {
       writeJson(response, 200, { status: 'ok' });

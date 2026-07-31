@@ -45,6 +45,7 @@ test('returns authenticated Audit history and health', async () => {
 
     assert.deepEqual(await health.json(), { status: 'ok' });
     assert.equal(response.status, 200);
+    assert.equal(response.headers.get('access-control-allow-origin'), 'http://localhost:5174');
     assert.deepEqual(await response.json(), {
       data: [{
         event_id: '00000000-0000-4000-8000-000000000001',
@@ -65,6 +66,25 @@ test('returns authenticated Audit history and health', async () => {
       sortBy: 'event_type',
       sortDirection: 'desc',
     });
+  } finally {
+    await close(server);
+  }
+});
+
+test('answers Audit-history authorization preflight requests', async () => {
+  const server = createAuditServer(
+    validator('valid'),
+    new ListAuditLogs({ async list() { return emptyPage(); } }),
+    'http://localhost:5174',
+  );
+  const origin = await listen(server);
+
+  try {
+    const response = await fetch(`${origin}/api/v1/audit-logs`, { method: 'OPTIONS' });
+
+    assert.equal(response.status, 204);
+    assert.equal(response.headers.get('access-control-allow-origin'), 'http://localhost:5174');
+    assert.equal(response.headers.get('access-control-allow-headers'), 'Authorization');
   } finally {
     await close(server);
   }
