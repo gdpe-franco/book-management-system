@@ -389,6 +389,36 @@ a:focus-visible {
   color: #9d3d55;
 }
 
+.book-details,
+.book-modal-form {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  min-width: min(100%, 24rem);
+}
+
+.book-details dt {
+  color: #6d5a68;
+  font-size: 0.85rem;
+}
+
+.book-details dd {
+  margin: 0.25rem 0 0;
+}
+
+.book-modal-form label {
+  color: #372535;
+  display: grid;
+  font-size: 0.85rem;
+  font-weight: 600;
+  gap: 0.4rem;
+}
+
+.book-modal-form .p-inputnumber,
+.book-modal-form .p-inputnumber-input {
+  width: 100%;
+}
+
 @media (max-width: 767px) {
   .app-shell {
     display: block;
