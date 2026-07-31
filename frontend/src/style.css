@@ -89,6 +89,16 @@ a:focus-visible {
   padding: 0 0.5rem;
 }
 
+.sidebar-brand-row {
+  align-items: center;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.sidebar-toggle.sidebar-toggle {
+  display: none;
+}
+
 .brand strong,
 .brand small,
 .user-summary strong,
@@ -167,29 +177,108 @@ a:focus-visible {
   padding: 1rem 2rem;
 }
 
+.mobile-brand,
+.navigation-menu {
+  display: none;
+}
+
 .app-header h1 {
   font-size: 1.4rem;
   margin: 0.25rem 0 0;
 }
 
-.header-actions {
-  align-items: center;
-  display: flex;
-  gap: 1rem;
-}
-
-.user-summary {
-  align-items: center;
-  color: #372535;
-  display: flex;
-  gap: 0.6rem;
-  text-decoration: none;
+.header-menu {
+  position: relative;
 }
 
 .avatar {
   border-radius: 50%;
   height: 2rem;
   width: 2rem;
+}
+
+.header-menu summary {
+  list-style: none;
+}
+
+.header-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.header-menu-button,
+.profile-button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e8dce5;
+  border-radius: 999px;
+  color: #74445f;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  justify-content: center;
+  min-height: 2.25rem;
+  padding: 0 0.8rem;
+}
+
+.header-menu-button {
+  font-size: 1.25rem;
+  padding: 0;
+  width: 2.25rem;
+}
+
+.profile-button {
+  padding: 0.1rem;
+}
+
+.header-menu-panel {
+  background: #fff;
+  border: 1px solid #e8dce5;
+  border-radius: 0.65rem;
+  box-shadow: 0 12px 30px rgb(55 37 53 / 0.12);
+  display: grid;
+  gap: 0.25rem;
+  min-width: 10rem;
+  padding: 0.5rem;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  z-index: 1;
+}
+
+.navigation-menu .header-menu-panel {
+  left: 0;
+  right: auto;
+}
+
+.header-menu-panel a {
+  border-radius: 0.4rem;
+  color: #372535;
+  padding: 0.65rem;
+  text-decoration: none;
+}
+
+.header-menu-panel a:hover,
+.header-menu-panel a.router-link-exact-active {
+  background: #f1e5ed;
+  color: #74445f;
+}
+
+.profile-menu-panel {
+  gap: 0.4rem;
+  min-width: 13rem;
+  padding: 0.85rem;
+}
+
+.profile-menu-panel small {
+  color: #6d5a68;
+  margin-top: -0.25rem;
+}
+
+.profile-menu-panel .p-button {
+  justify-content: flex-start;
+  padding-left: 0.65rem;
 }
 
 .app-main {
@@ -238,33 +327,81 @@ a:focus-visible {
   padding: 0;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 767px) {
   .app-shell {
-    flex-direction: column;
+    display: block;
   }
+
   .sidebar {
-    flex-basis: auto;
-    gap: 1rem;
-    padding: 1rem;
-  }
-  .nav-caption {
     display: none;
   }
-  .sidebar nav {
-    display: flex;
-    overflow-x: auto;
+
+  .app-header {
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
   }
-  .sidebar nav a {
+
+  .mobile-brand,
+  .navigation-menu {
+    align-items: center;
+    display: flex;
+  }
+
+  .mobile-brand {
+    text-decoration: none;
+  }
+
+  .page-heading {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .header-kicker {
+    display: none;
+  }
+
+  .app-header h1 {
+    color: #6d5a68;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .app-header,
+
   .app-main {
     padding: 1rem;
   }
-  .app-header h1 {
-    font-size: 1.2rem;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sidebar {
+    flex-basis: 13rem;
   }
-  .header-actions {
-    gap: 0.5rem;
+
+  .sidebar-toggle.sidebar-toggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+  }
+
+  .sidebar--collapsed {
+    align-items: center;
+    flex-basis: 4.25rem;
+    padding-inline: 0.5rem;
+  }
+
+  .sidebar--collapsed .sidebar-brand-row {
+    flex-direction: column;
+  }
+
+  .sidebar--collapsed .brand {
+    padding: 0;
+  }
+
+  .sidebar--collapsed .brand > span:not(.brand-mark),
+  .sidebar--collapsed .nav-caption,
+  .sidebar--collapsed nav {
+    display: none;
   }
 }
