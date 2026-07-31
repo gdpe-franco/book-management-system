@@ -48,6 +48,9 @@ class EventPublishingTest extends TestCase
         } else {
             $this->assertSame($expectedChanges, $changes);
         }
+        if ($operation === 'create') {
+            $this->assertSame('{}', $event['changes']);
+        }
 
         $snapshot = json_decode($event['book'], true, flags: JSON_THROW_ON_ERROR);
         $this->assertSame($expectedTitle, $snapshot['title']);

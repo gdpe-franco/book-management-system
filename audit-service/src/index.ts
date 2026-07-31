@@ -77,8 +77,8 @@ async function consumeNewEvents(
       if (duplicates > 0) {
         console.info(`Acknowledged ${duplicates} duplicate Audit event ${duplicates === 1 ? 'delivery' : 'deliveries'}.`);
       }
-    } catch {
-      console.error('Audit event consumption failed.');
+    } catch (error) {
+      console.error('Audit event consumption failed.', error);
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }

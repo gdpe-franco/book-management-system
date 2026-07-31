@@ -33,7 +33,7 @@ class BookEventPublisher
                 'occurred_at' => $occurredAt->toIso8601String(),
                 'actor' => json_encode(['id' => $actorId], JSON_THROW_ON_ERROR),
                 'book' => json_encode($book->only(['id', 'title', 'author', 'isbn', 'published_year']), JSON_THROW_ON_ERROR),
-                'changes' => json_encode($changes, JSON_THROW_ON_ERROR),
+                'changes' => $changes === [] ? '{}' : json_encode($changes, JSON_THROW_ON_ERROR),
             ],
         ]);
 
