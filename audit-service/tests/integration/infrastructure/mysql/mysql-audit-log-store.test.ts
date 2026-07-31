@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { RowDataPacket } from 'mysql2/promise';
-import { PersistAuditEvent } from '../../../../src/application/persist-audit-event.js';
+import { PersistAuditEvent } from '../../../../src/application/audit-logs/persist-audit-event.js';
 import { createMysqlPool, mysqlConfigFromEnvironment } from '../../../../src/infrastructure/mysql/connection.js';
 import { applyMigrations } from '../../../../src/infrastructure/mysql/migrations.js';
 import { MysqlAuditLogStore } from '../../../../src/infrastructure/mysql/mysql-audit-log-store.js';

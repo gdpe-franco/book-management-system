@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { ConsumeBookEvents } from '../../../src/application/consume-book-events.js';
-import { PersistAuditEvent } from '../../../src/application/persist-audit-event.js';
-import type { BookEventStream } from '../../../src/application/ports/book-event-stream.js';
-import type { AuditLogStore } from '../../../src/application/ports/audit-log-store.js';
+import { ConsumeBookEvents } from '../../../../src/application/book-events/consume-book-events.js';
+import { PersistAuditEvent } from '../../../../src/application/audit-logs/persist-audit-event.js';
+import type { BookEventStream } from '../../../../src/application/book-events/ports/book-event-stream.js';
+import type { AuditLogStore } from '../../../../src/application/audit-logs/ports/audit-log-store.js';
 
 test('persists a delivery before acknowledging it', async () => {
   const calls: string[] = [];

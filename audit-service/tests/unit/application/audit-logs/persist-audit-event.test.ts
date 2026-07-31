@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { PersistAuditEvent } from '../../../src/application/persist-audit-event.js';
-import type { AuditLogStore } from '../../../src/application/ports/audit-log-store.js';
-import type { AuditEvent } from '../../../src/domain/audit-event.js';
+import { PersistAuditEvent } from '../../../../src/application/audit-logs/persist-audit-event.js';
+import type { AuditLogStore } from '../../../../src/application/audit-logs/ports/audit-log-store.js';
+import type { AuditEvent } from '../../../../src/domain/audit-event.js';
 
 test('validates and sends a v1 event to the persistence port', async () => {
   const events: AuditEvent[] = [];

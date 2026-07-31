@@ -1,4 +1,4 @@
-import type { PersistAuditEvent } from './persist-audit-event.js';
+import type { PersistAuditEvent } from '../audit-logs/persist-audit-event.js';
 import type { BookEventStream } from './ports/book-event-stream.js';
 
 export class ConsumeBookEvents {

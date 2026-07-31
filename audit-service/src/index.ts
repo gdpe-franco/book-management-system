@@ -1,6 +1,6 @@
 import { startServer } from './bootstrap.js';
-import { ConsumeBookEvents } from './application/consume-book-events.js';
-import { PersistAuditEvent } from './application/persist-audit-event.js';
+import { ConsumeBookEvents } from './application/book-events/consume-book-events.js';
+import { PersistAuditEvent } from './application/audit-logs/persist-audit-event.js';
 import { createMysqlPool, mysqlConfigFromEnvironment } from './infrastructure/mysql/connection.js';
 import { initializeStorage } from './infrastructure/mysql/initialize-storage.js';
 import { MysqlAuditLogStore } from './infrastructure/mysql/mysql-audit-log-store.js';

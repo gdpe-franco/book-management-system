@@ -1,5 +1,5 @@
 import type { ResultSetHeader, Pool } from 'mysql2/promise';
-import type { AuditLogStore, PersistResult } from '../../application/ports/audit-log-store.js';
+import type { AuditLogStore, PersistResult } from '../../application/audit-logs/ports/audit-log-store.js';
 import type { AuditEvent } from '../../domain/audit-event.js';
 
 export class MysqlAuditLogStore implements AuditLogStore {

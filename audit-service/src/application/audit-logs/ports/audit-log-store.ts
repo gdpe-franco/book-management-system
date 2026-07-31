@@ -1,4 +1,4 @@
-import type { AuditEvent } from '../../domain/audit-event.js';
+import type { AuditEvent } from '../../../domain/audit-event.js';
 
 export type PersistResult = 'created' | 'already_exists';
 

@@ -1,5 +1,5 @@
 import { createClient, type RedisClientType } from 'redis';
-import type { BookEventDelivery, BookEventStream } from '../../application/ports/book-event-stream.js';
+import type { BookEventDelivery, BookEventStream } from '../../application/book-events/ports/book-event-stream.js';
 
 const streamName = 'book-events';
 const groupName = 'audit-service';
