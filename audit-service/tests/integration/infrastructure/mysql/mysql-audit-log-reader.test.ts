@@ -17,7 +17,7 @@ test.before(async () => {
   await pool.execute(`
     INSERT INTO audit_logs (event_id, event_type, event_version, occurred_at, actor_id, book_snapshot, changes)
     VALUES
-      ('00000000-0000-4000-8000-000000000001', 'book.created', 1, '2026-07-27 10:00:00', 1, '{"id": 1}', '{}'),
+      ('00000000-0000-4000-8000-000000000001', 'book.created', 1, '2026-07-27 10:00:00', 1, '{"id": 1, "title": "First title"}', '{}'),
       ('00000000-0000-4000-8000-000000000002', 'book.updated', 1, '2026-07-28 10:00:00', 1, '{"id": 2}', '{}'),
       ('00000000-0000-4000-8000-000000000003', 'book.deleted', 1, '2026-07-29 10:00:00', 2, '{"id": 3}', '{}')
   `);
@@ -39,6 +39,7 @@ test('returns ordered pages with search and supported sorts', async () => {
     sortDirection: 'asc',
   });
   const sorted = await reader.list({ page: 1, perPage: 15, sortBy: 'event_type', sortDirection: 'asc' });
+  const titleSearch = await reader.list({ page: 1, perPage: 15, search: 'first title' });
 
   assert.deepEqual(page.data.map((log) => log.eventId), [
     '00000000-0000-4000-8000-000000000003',
@@ -51,4 +52,5 @@ test('returns ordered pages with search and supported sorts', async () => {
   assert.deepEqual(filtered.data.map((log) => log.eventId), ['00000000-0000-4000-8000-000000000002']);
   assert.equal(filtered.total, 1);
   assert.deepEqual(sorted.data.map((log) => log.eventType), ['book.created', 'book.deleted', 'book.updated']);
+  assert.deepEqual(titleSearch.data.map((log) => log.eventId), ['00000000-0000-4000-8000-000000000001']);
 });

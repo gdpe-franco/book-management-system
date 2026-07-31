@@ -33,8 +33,12 @@ function conditions(query: NormalizedQuery): { where: string; parameters: Array<
   const parameters: Array<string | Date> = [];
 
   if (query.search !== undefined) {
-    clauses.push('(LOWER(event_type) LIKE LOWER(?) OR LOWER(event_id) LIKE LOWER(?))');
-    parameters.push(`%${query.search}%`, `%${query.search}%`);
+    clauses.push(`(
+      LOWER(event_type) LIKE LOWER(?)
+      OR LOWER(event_id) LIKE LOWER(?)
+      OR LOWER(JSON_UNQUOTE(JSON_EXTRACT(book_snapshot, '$.title'))) LIKE LOWER(?)
+    )`);
+    parameters.push(`%${query.search}%`, `%${query.search}%`, `%${query.search}%`);
   }
 
   return { where: clauses.length === 0 ? '' : ` WHERE ${clauses.join(' AND ')}`, parameters };

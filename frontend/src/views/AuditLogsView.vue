@@ -162,7 +162,7 @@ onMounted(() => void loadAuditLogs());
       <template #content>
         <form class="books-filter-form" @submit.prevent="applySearch">
           <label>
-            Search event type or ID
+            Search event type, ID, or book title
             <InputText v-model="search" />
           </label>
           <div class="books-filter-actions">

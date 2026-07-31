@@ -486,7 +486,7 @@ components:
     AuditSearch:
       name: search
       in: query
-      description: Trimmed, case-insensitive contains search across event type and event ID.
+      description: Trimmed, case-insensitive contains search across event type, event ID, and book title when present.
       schema:
         type: string
         maxLength: 255
