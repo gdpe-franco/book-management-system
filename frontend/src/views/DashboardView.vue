@@ -1,39 +1,37 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
 import Card from "primevue/card";
 import { useAuthStore } from "../stores/auth";
 
-type Book = { title: string; author: string };
+type Cover = { title: string; isbn: string };
 
 const auth = useAuthStore();
-const router = useRouter();
-const covers = ref<Book[]>([]);
-
-async function loadCovers(): Promise<void> {
-  if (auth.token === null) return;
-
-  try {
-    const response = await fetch("/api/v1/books?per_page=10", {
-      headers: { Authorization: `Bearer ${auth.token}` },
-    });
-
-    if (response.status === 401) {
-      auth.clear();
-      await router.push("/login");
-
-      return;
-    }
-
-    if (!response.ok) return;
-
-    covers.value = ((await response.json()) as { data: Book[] }).data;
-  } catch {
-    // The dashboard remains useful when the catalogue is unavailable.
-  }
-}
-
-onMounted(() => void loadCovers());
+const covers: Cover[] = [
+  { title: "The Odyssey", isbn: "9780140268867" },
+  {
+    title: "Pride and Prejudice",
+    isbn: "9780141439518",
+  },
+  { title: "Sapiens", isbn: "9780062316097" },
+  { title: "Perfume", isbn: "9780375725845" },
+  {
+    title: "One Hundred Years of Solitude",
+    isbn: "9780060883287",
+  },
+  { title: "Dune", isbn: "9780441172719" },
+  { title: "Little Women", isbn: "9780147514011" },
+  {
+    title: "The Murders in the Rue Morgue",
+    isbn: "9780679643425",
+  },
+  {
+    title: "The Second Sex",
+    isbn: "9780307265562",
+  },
+  {
+    title: "Man's Search for Meaning",
+    isbn: "9780807014295",
+  },
+];
 </script>
 
 <template>
@@ -48,21 +46,23 @@ onMounted(() => void loadCovers());
       </template>
     </Card>
 
-    <section
-      v-if="covers.length > 0"
-      aria-label="Book covers"
-      class="book-carousel"
-    >
+    <section aria-label="Book covers" class="book-carousel">
       <div class="book-carousel-heading">
         <p class="card-kicker">Catalogue highlights</p>
-        <span>{{ covers.length }} current titles</span>
+        <span>{{ covers.length }} selected titles</span>
       </div>
       <ul>
         <li v-for="book in covers" :key="book.title" class="book-cover">
+          <img
+            :alt="`${book.title} cover`"
+            :src="`https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`"
+          />
           <span>{{ book.title }}</span>
-          <small>{{ book.author }}</small>
         </li>
       </ul>
+      <a href="https://openlibrary.org" rel="noreferrer" target="_blank"
+        >Cover images: Open Library</a
+      >
     </section>
   </section>
 </template>

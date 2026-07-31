@@ -11,7 +11,7 @@ Source requirements: `requirements.pdf`.
 - Audit logs are append-only. The dashboard loads paginated history from the audit service; after successful persistence, the audit service emits a Socket.IO notification to connected dashboards.
 - Book and audit data use separate MySQL databases. The audit service owns its database.
 - Laravel is the only token authority. The audit service forwards bearer tokens to Laravel for validation and stores no local user session or token state.
-- Seed data runs through documented commands. An optional Open Library importer is development-only; the application has no runtime catalog dependency.
+- Seed data runs through documented commands. An optional Open Library importer is development-only. The Dashboard's fixed ten-title carousel loads only Open Library Covers image URLs; it does not query, import, or synchronize catalog metadata at runtime.
 
 ## Not building
 
