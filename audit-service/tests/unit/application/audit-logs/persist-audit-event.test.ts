@@ -10,7 +10,7 @@ test('validates and sends a v1 event to the persistence port', async () => {
     async persist(event) {
       events.push(event);
 
-      return 'created';
+      return createdAuditLog(event);
     },
   };
   const useCase = new PersistAuditEvent(auditLogStore);
@@ -22,7 +22,7 @@ test('validates and sends a v1 event to the persistence port', async () => {
 });
 
 test('rejects an event outside the v1 contract before persistence', () => {
-  const auditLogStore: AuditLogStore = { async persist() { return 'created'; } };
+  const auditLogStore: AuditLogStore = { async persist(event) { return createdAuditLog(event); } };
   const useCase = new PersistAuditEvent(auditLogStore);
 
   assert.throws(
@@ -40,5 +40,21 @@ function sampleEvent(): Record<string, unknown> {
     actor: { id: 1 },
     book: { id: 42, title: 'Example title', author: 'Example author', isbn: '9780000000000', published_year: 2026 },
     changes: {},
+  };
+}
+
+function createdAuditLog(event: AuditEvent) {
+  return {
+    status: 'created' as const,
+    auditLog: {
+      eventId: event.eventId,
+      eventType: event.eventType,
+      eventVersion: event.eventVersion,
+      occurredAt: event.occurredAt,
+      actorId: event.actorId,
+      bookSnapshot: event.bookSnapshot,
+      changes: event.changes,
+      persistedAt: new Date('2026-07-27T12:00:01Z'),
+    },
   };
 }

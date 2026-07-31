@@ -2,6 +2,7 @@ import { startServer } from './bootstrap.js';
 import { ConsumeBookEvents } from './application/book-events/consume-book-events.js';
 import { PersistAuditEvent } from './application/audit-logs/persist-audit-event.js';
 import { ListAuditLogs } from './application/audit-logs/list-audit-logs.js';
+import type { AuditLogNotifier } from './application/audit-logs/ports/audit-log-notifier.js';
 import { ValidateAuditAccess } from './application/authentication/validate-audit-access.js';
 import { createAuditServer } from './http/audit-server.js';
 import { createMysqlPool, mysqlConfigFromEnvironment } from './infrastructure/mysql/connection.js';
@@ -12,9 +13,11 @@ import { LaravelTokenValidator } from './infrastructure/laravel/laravel-token-va
 import { connectBookEventStream } from './infrastructure/redis/redis-book-event-stream.js';
 import { attachAuditSocketServer } from './infrastructure/socketio/audit-socket-server.js';
 import { authorizeAuditSockets } from './infrastructure/socketio/authorize-audit-sockets.js';
+import { SocketIoAuditLogNotifier } from './infrastructure/socketio/socketio-audit-log-notifier.js';
 
 const port = Number(process.env.PORT ?? 3000);
 const staleEntryIdleMs = 60_000;
+let auditLogNotifier: AuditLogNotifier | undefined;
 
 void startServer(
   port,
@@ -23,7 +26,11 @@ void startServer(
     const stream = await connectBookEventStream();
 
     await stream.ensureGroup();
-    void consumeNewEvents(stream);
+    if (auditLogNotifier === undefined) {
+      throw new Error('Audit notifications are unavailable.');
+    }
+
+    void consumeNewEvents(stream, auditLogNotifier);
   },
   () => {
     const validateAuditAccess = new ValidateAuditAccess(new LaravelTokenValidator(requiredEnvironment('LARAVEL_BASE_URL')));
@@ -34,6 +41,7 @@ void startServer(
     const socketServer = attachAuditSocketServer(server, process.env.FRONTEND_ORIGIN ?? 'http://localhost:5174');
 
     authorizeAuditSockets(socketServer, validateAuditAccess);
+    auditLogNotifier = new SocketIoAuditLogNotifier(socketServer);
 
     return server;
   },
@@ -52,10 +60,14 @@ function requiredEnvironment(name: string): string {
   return value;
 }
 
-async function consumeNewEvents(stream: Awaited<ReturnType<typeof connectBookEventStream>>): Promise<void> {
+async function consumeNewEvents(
+  stream: Awaited<ReturnType<typeof connectBookEventStream>>,
+  notifier: AuditLogNotifier,
+): Promise<void> {
   const consumer = new ConsumeBookEvents(
     stream,
     new PersistAuditEvent(new MysqlAuditLogStore(createMysqlPool(mysqlConfigFromEnvironment()))),
+    notifier,
   );
 
   while (process.exitCode === undefined) {

@@ -27,7 +27,13 @@ test('persists every v1 event field once', async () => {
   const useCase = new PersistAuditEvent(new MysqlAuditLogStore(pool));
   const event = sampleEvent();
 
-  assert.equal(await useCase.execute(event), 'created');
+  const result = await useCase.execute(event);
+
+  assert.equal(result.status, 'created');
+  if (result.status === 'created') {
+    assert.equal(result.auditLog.eventId, event.event_id);
+    assert.equal(result.auditLog.persistedAt.getMilliseconds(), 0);
+  }
 
   const [rows] = await pool.execute<RowDataPacket[]>(`
     SELECT event_id, event_type, event_version, DATE_FORMAT(occurred_at, '%Y-%m-%dT%H:%i:%sZ') AS occurred_at,

@@ -11,18 +11,23 @@ export async function startServer(
   initializeConsumption: ConsumptionInitializer = async () => undefined,
   createServer: ServerFactory = createHealthServer,
 ): Promise<Server> {
+  let server: Server | undefined;
+
   try {
     await initializeStorage();
+    const currentServer = createServer();
+    server = currentServer;
     await initializeConsumption();
-    const server = createServer();
 
     await new Promise<void>((resolve, reject) => {
-      server.once('error', reject);
-      server.listen(port, '0.0.0.0', resolve);
+      currentServer.once('error', reject);
+      currentServer.listen(port, '0.0.0.0', resolve);
     });
 
-    return server;
+    return currentServer;
   } catch {
+    server?.close();
+
     throw new Error('Audit service initialization failed.');
   }
 }

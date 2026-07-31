@@ -4,6 +4,8 @@ import { ConsumeBookEvents } from '../../../../src/application/book-events/consu
 import { PersistAuditEvent } from '../../../../src/application/audit-logs/persist-audit-event.js';
 import type { BookEventStream } from '../../../../src/application/book-events/ports/book-event-stream.js';
 import type { AuditLogStore } from '../../../../src/application/audit-logs/ports/audit-log-store.js';
+import type { AuditLogNotifier } from '../../../../src/application/audit-logs/ports/audit-log-notifier.js';
+import type { AuditEvent } from '../../../../src/domain/audit-event.js';
 
 test('persists a delivery before acknowledging it', async () => {
   const calls: string[] = [];
@@ -14,15 +16,16 @@ test('persists a delivery before acknowledging it', async () => {
     async acknowledge() { calls.push('acknowledge'); },
   };
   const store: AuditLogStore = {
-    async persist() {
+    async persist(event) {
       calls.push('persist');
-      return 'created';
+      return createdAuditLog(event);
     },
   };
+  const notifier: AuditLogNotifier = { async notify() { calls.push('notify'); } };
 
-  assert.equal(await new ConsumeBookEvents(stream, new PersistAuditEvent(store)).execute(), 0);
+  assert.equal(await new ConsumeBookEvents(stream, new PersistAuditEvent(store), notifier).execute(), 0);
 
-  assert.deepEqual(calls, ['persist', 'acknowledge']);
+  assert.deepEqual(calls, ['persist', 'notify', 'acknowledge']);
 });
 
 test('does not acknowledge a delivery when persistence fails', async () => {
@@ -34,10 +37,27 @@ test('does not acknowledge a delivery when persistence fails', async () => {
     async acknowledge() { acknowledged = true; },
   };
   const store: AuditLogStore = { async persist() { throw new Error('database unavailable'); } };
+  const notifier: AuditLogNotifier = { async notify() {} };
 
-  await assert.rejects(() => new ConsumeBookEvents(stream, new PersistAuditEvent(store)).execute());
+  await assert.rejects(() => new ConsumeBookEvents(stream, new PersistAuditEvent(store), notifier).execute());
 
   assert.equal(acknowledged, false);
+});
+
+test('acknowledges a persisted delivery when notification fails', async () => {
+  let acknowledged = false;
+  const stream: BookEventStream = {
+    async ensureGroup() {},
+    async readNew() { return [{ id: '1-0', event: sampleEvent() }]; },
+    async claimStale() { return []; },
+    async acknowledge() { acknowledged = true; },
+  };
+  const store: AuditLogStore = { async persist(event) { return createdAuditLog(event); } };
+  const notifier: AuditLogNotifier = { async notify() { throw new Error('Socket.IO unavailable'); } };
+
+  await new ConsumeBookEvents(stream, new PersistAuditEvent(store), notifier).execute();
+
+  assert.equal(acknowledged, true);
 });
 
 function sampleEvent(): Record<string, unknown> {
@@ -49,5 +69,21 @@ function sampleEvent(): Record<string, unknown> {
     actor: { id: 1 },
     book: { id: 42 },
     changes: {},
+  };
+}
+
+function createdAuditLog(event: AuditEvent) {
+  return {
+    status: 'created' as const,
+    auditLog: {
+      eventId: event.eventId,
+      eventType: event.eventType,
+      eventVersion: event.eventVersion,
+      occurredAt: event.occurredAt,
+      actorId: event.actorId,
+      bookSnapshot: event.bookSnapshot,
+      changes: event.changes,
+      persistedAt: new Date('2026-07-27T12:00:01Z'),
+    },
   };
 }

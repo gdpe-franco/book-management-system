@@ -1,7 +1,8 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { InvalidAuditLogQuery, ListAuditLogs } from '../application/audit-logs/list-audit-logs.js';
+import { auditLogPayload } from '../application/audit-logs/audit-log-payload.js';
 import { ValidateAuditAccess } from '../application/authentication/validate-audit-access.js';
-import type { AuditLog, AuditLogQuery } from '../domain/audit-log.js';
+import type { AuditLogQuery } from '../domain/audit-log.js';
 
 export function createHealthServer(): Server {
   return createServer((request, response) => {
@@ -62,7 +63,7 @@ async function auditLogs(
     const page = await listAuditLogs.execute(queryFrom(url.searchParams));
 
     writeJson(response, 200, {
-      data: page.data.map(auditLogResponse),
+      data: page.data.map(auditLogPayload),
       meta: {
         current_page: page.currentPage,
         last_page: page.lastPage,
@@ -100,23 +101,6 @@ function numberParameter(value: string | null): number | undefined {
 
 function dateParameter(value: string | null): Date | undefined {
   return value === null ? undefined : new Date(value);
-}
-
-function auditLogResponse(log: AuditLog): Record<string, unknown> {
-  return {
-    event_id: log.eventId,
-    event_type: log.eventType,
-    event_version: log.eventVersion,
-    occurred_at: utcSeconds(log.occurredAt),
-    actor_id: log.actorId,
-    book_snapshot: log.bookSnapshot,
-    changes: log.changes,
-    persisted_at: utcSeconds(log.persistedAt),
-  };
-}
-
-function utcSeconds(date: Date): string {
-  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 }
 
 function writeJson(response: ServerResponse, status: number, body: unknown): void {

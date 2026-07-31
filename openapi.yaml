@@ -5,6 +5,14 @@ info:
   description: Versioned HTTP contract for implemented API endpoints.
 servers:
   - url: http://localhost:8000
+x-socketio:
+  url: http://localhost:3000/socket.io/
+  authentication: Send the complete bearer value in handshake.auth.authorization; it is validated by Laravel.
+  event:
+    name: audit.log.created
+    description: Broadcast after a new Audit log is persisted. Delivery is transient; use GET /api/v1/audit-logs to recover missed events.
+    payload:
+      $ref: '#/components/schemas/AuditLog'
 paths:
   /api/v1/auth/register:
     post:

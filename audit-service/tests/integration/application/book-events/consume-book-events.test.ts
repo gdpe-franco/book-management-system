@@ -4,6 +4,7 @@ import type { RowDataPacket } from 'mysql2/promise';
 import { createClient } from 'redis';
 import { ConsumeBookEvents } from '../../../../src/application/book-events/consume-book-events.js';
 import { PersistAuditEvent } from '../../../../src/application/audit-logs/persist-audit-event.js';
+import type { AuditLogNotifier } from '../../../../src/application/audit-logs/ports/audit-log-notifier.js';
 import { createMysqlPool, mysqlConfigFromEnvironment } from '../../../../src/infrastructure/mysql/connection.js';
 import { applyMigrations } from '../../../../src/infrastructure/mysql/migrations.js';
 import { MysqlAuditLogStore } from '../../../../src/infrastructure/mysql/mysql-audit-log-store.js';
@@ -19,7 +20,13 @@ const redis = createClient({
   database: Number(process.env.REDIS_TEST_DB),
 });
 const stream = new RedisBookEventStream(redis, 'audit-consumption-test');
-const consumer = new ConsumeBookEvents(stream, new PersistAuditEvent(new MysqlAuditLogStore(mysql)));
+let notifications = 0;
+const notifier: AuditLogNotifier = { async notify() { notifications += 1; } };
+const consumer = new ConsumeBookEvents(
+  stream,
+  new PersistAuditEvent(new MysqlAuditLogStore(mysql)),
+  notifier,
+);
 
 test.before(async () => {
   await redis.connect();
@@ -31,6 +38,7 @@ test.beforeEach(async () => {
   await mysql.execute('DROP TABLE IF EXISTS audit_schema_migrations');
   await applyMigrations(mysql);
   await stream.ensureGroup();
+  notifications = 0;
 });
 
 test.after(async () => {
@@ -50,6 +58,7 @@ test('persists and acknowledges new and duplicate event deliveries', async () =>
   const [rows] = await mysql.query<RowDataPacket[]>('SELECT COUNT(*) AS total FROM audit_logs');
 
   assert.equal(rows[0]?.total, 1);
+  assert.equal(notifications, 1);
   assert.deepEqual(await redis.xPendingRange('book-events', 'audit-service', '-', '+', 10), []);
 });
 
