@@ -28,19 +28,45 @@ export class RedisBookEventStream implements BookEventStream {
     }
   }
 
-  async readNew(count = 10): Promise<BookEventDelivery[]> {
+  async readNew(count = 10, blockMs?: number): Promise<BookEventDelivery[]> {
     const result = await this.client.xReadGroup(
       groupName,
       this.consumer,
       [{ key: streamName, id: '>' }],
-      { COUNT: count },
+      { COUNT: count, ...(blockMs === undefined ? {} : { BLOCK: blockMs }) },
     );
 
-    return result?.flatMap((stream) => stream.messages.map((message: { id: string; message: Record<string, string> }) => ({
-      id: message.id,
-      fields: message.message,
-    }))) ?? [];
+    return result?.flatMap((stream) => stream.messages.map(decodeDelivery)) ?? [];
   }
+
+  async acknowledge(id: string): Promise<void> {
+    await this.client.xAck(streamName, groupName, id);
+  }
+}
+
+function decodeDelivery(message: { id: string; message: Record<string, string> }): BookEventDelivery {
+  const fields = message.message;
+
+  return {
+    id: message.id,
+    event: {
+      event_id: fields.event_id,
+      event_type: fields.event_type,
+      event_version: Number(fields.event_version),
+      occurred_at: fields.occurred_at,
+      actor: parseJson(fields.actor),
+      book: parseJson(fields.book),
+      changes: parseJson(fields.changes),
+    },
+  };
+}
+
+function parseJson(value: string | undefined): unknown {
+  if (value === undefined) {
+    throw new Error('Redis Stream event JSON field is missing.');
+  }
+
+  return JSON.parse(value) as unknown;
 }
 
 function consumerName(): string {

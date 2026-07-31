@@ -37,14 +37,14 @@ test('creates the documented append-only audit-log schema and can be rerun', asy
       ['event_id', 'char(36)', 'NO'],
       ['event_type', 'varchar(64)', 'NO'],
       ['event_version', 'smallint unsigned', 'NO'],
-      ['occurred_at', 'timestamp(6)', 'NO'],
+      ['occurred_at', 'timestamp', 'NO'],
       ['actor_id', 'bigint unsigned', 'NO'],
       ['book_snapshot', 'json', 'NO'],
       ['changes', 'json', 'NO'],
-      ['persisted_at', 'timestamp(6)', 'NO'],
+      ['persisted_at', 'timestamp', 'NO'],
     ],
   );
-  assert.match(String(columns.at(-1)?.COLUMN_DEFAULT), /CURRENT_TIMESTAMP\(6\)/i);
+  assert.match(String(columns.at(-1)?.COLUMN_DEFAULT), /^CURRENT_TIMESTAMP$/i);
   assert.equal(columns.some((column) => column.COLUMN_NAME === 'updated_at'), false);
 
   const [constraints] = await pool.execute<RowDataPacket[]>(`
@@ -59,10 +59,10 @@ test('creates the documented append-only audit-log schema and can be rerun', asy
       'audit_logs_event_version_positive',
     ]);
 
-  const [migrations] = await pool.execute<RowDataPacket[]>(
-    'SELECT version FROM audit_schema_migrations WHERE version = ?',
-    ['001_create_audit_logs'],
-  );
+  const [migrations] = await pool.execute<RowDataPacket[]>('SELECT version FROM audit_schema_migrations ORDER BY version');
 
-  assert.equal(migrations.length, 1);
+  assert.deepEqual(migrations.map((migration) => migration.version), [
+    '001_create_audit_logs',
+    '002_normalize_audit_timestamps',
+  ]);
 });

@@ -60,7 +60,8 @@ services:
       SUPERADMIN_PASSWORD: ${SUPERADMIN_PASSWORD:-}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_DB: 0
+      REDIS_DB: 1
+      REDIS_CACHE_DB: 0
     volumes:
       - ./backend:/app
       - backend_vendor:/app/vendor
@@ -95,7 +96,7 @@ services:
       MYSQL_TEST_PASSWORD: ${MYSQL_AUDIT_TEST_PASSWORD:-change-me-audit-test}
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_DB: 0
+      REDIS_DB: 1
       REDIS_TEST_HOST: redis
       REDIS_TEST_PORT: 6379
       REDIS_TEST_DB: 2

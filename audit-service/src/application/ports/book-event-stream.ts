@@ -1,9 +1,10 @@
 export interface BookEventDelivery {
   id: string;
-  fields: Record<string, string>;
+  event: unknown;
 }
 
 export interface BookEventStream {
   ensureGroup(): Promise<void>;
-  readNew(count?: number): Promise<BookEventDelivery[]>;
+  readNew(count?: number, blockMs?: number): Promise<BookEventDelivery[]>;
+  acknowledge(id: string): Promise<void>;
 }

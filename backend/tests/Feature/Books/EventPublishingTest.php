@@ -98,6 +98,13 @@ class EventPublishingTest extends TestCase
 
                     return '1-0';
                 });
+            $connection->shouldReceive('command')->once()
+                ->withArgs(static fn (string $command, array $arguments): bool => $command === 'rawCommand'
+                    && $arguments[0] === 'XTRIM'
+                    && $arguments[1] === 'book-events'
+                    && $arguments[2] === 'MINID'
+                    && $arguments[3] === '~'
+                    && preg_match('/^\d+-0$/', $arguments[4]) === 1);
         }
 
         $redis = Mockery::mock(Redis::class);

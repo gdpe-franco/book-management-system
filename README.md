@@ -69,7 +69,7 @@ Open the database or Redis command-line client with the appropriate local servic
 ```sh
 make mysql-books
 make mysql-audit
-make redis-cli      # application event broker, Redis DB 0
+make redis-cli      # application event broker, Redis DB 1
 make redis-test-cli # isolated PHPUnit broker, Redis DB 2
 ```
 

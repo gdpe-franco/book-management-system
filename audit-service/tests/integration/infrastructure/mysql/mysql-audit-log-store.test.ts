@@ -31,7 +31,7 @@ test('persists every v1 event field once', async () => {
   assert.equal(await useCase.execute(event), 'already_exists');
 
   const [rows] = await pool.execute<RowDataPacket[]>(`
-    SELECT event_id, event_type, event_version, DATE_FORMAT(occurred_at, '%Y-%m-%dT%H:%i:%s.%fZ') AS occurred_at,
+    SELECT event_id, event_type, event_version, DATE_FORMAT(occurred_at, '%Y-%m-%dT%H:%i:%sZ') AS occurred_at,
       actor_id, book_snapshot, changes, persisted_at
     FROM audit_logs
   `);
@@ -41,7 +41,7 @@ test('persists every v1 event field once', async () => {
   assert.equal(row?.event_id, event.event_id);
   assert.equal(row?.event_type, event.event_type);
   assert.equal(row?.event_version, event.event_version);
-  assert.equal(row?.occurred_at, '2026-07-27T12:00:00.000000Z');
+  assert.equal(row?.occurred_at, '2026-07-27T12:00:00Z');
   assert.equal(row?.actor_id, event.actor.id);
   assert.deepEqual(row?.book_snapshot, event.book);
   assert.deepEqual(row?.changes, event.changes);

@@ -143,11 +143,11 @@ entity audit_logs {
   --
   event_type : varchar(64) <<NOT NULL>>
   event_version : smallint unsigned <<NOT NULL, CHECK > 0>>
-  occurred_at : timestamp(6) <<NOT NULL>>
+  occurred_at : timestamp UTC <<NOT NULL>>
   actor_id : bigint unsigned <<NOT NULL>>
   book_snapshot : json <<NOT NULL>>
   changes : json <<NOT NULL>>
-  persisted_at : timestamp(6) <<NOT NULL, default current timestamp>>
+  persisted_at : timestamp UTC <<NOT NULL, default current timestamp>>
 }
 note right of audit_logs
   actor_id is a reference, not a foreign key:
@@ -174,8 +174,8 @@ The Node.js Audit service uses hexagonal architecture. Its domain and applicatio
 
 - Laravel uses MySQL and Sanctum bearer tokens; the audit service owns a separate MySQL database.
 - Laravel and the MySQL server use UTC; both Book and Audit database timestamps use this shared server timezone.
-- Laravel appends v1 Book events to Redis Stream `book-events` after commit. Stream fields are scalar: `event_id`, `event_type`, `event_version`, and `occurred_at` are strings; `actor`, `book`, and `changes` are JSON strings decoded by the audit service.
-- Redis Streams is the event queue: the audit service creates consumer group `audit-service` at `0-0` for `book-events`, so its first startup processes every retained entry. It reads new entries with `XREADGROUP`, persists them, and only then calls `XACK`. Each running audit-service instance uses its own consumer name and uses `XAUTOCLAIM` to retry stale unacknowledged entries; duplicate delivery is safe because `event_id` is unique in `audit_logs`.
+- Redis DB `0` contains Laravel cache keys, DB `1` contains local application event streams, and DB `2` is the isolated test event broker. Laravel appends v1 Book events to Redis Stream `book-events` after commit and approximately trims entries older than one day. Stream fields are scalar: `event_id`, `event_type`, `event_version`, and `occurred_at` are strings; `actor`, `book`, and `changes` are JSON strings decoded by the audit service.
+- Redis Streams is the event queue: the audit service creates consumer group `audit-service` at `0-0` for `book-events`, so its first startup processes every retained entry. It reads up to 10 new entries per `XREADGROUP` call, blocking for up to 5 seconds, persists them, and only then calls `XACK`. Each running audit-service instance uses its own consumer name and uses `XAUTOCLAIM` to retry stale unacknowledged entries; duplicate delivery is safe because `event_id` is unique in `audit_logs`.
 - Compose uses health checks and ignored environment files for secrets. MySQL and Redis use their standard ports on the local development host for optional database and Redis visualizers.
 
 ### Audit-service authentication
