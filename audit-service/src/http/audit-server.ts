@@ -89,18 +89,14 @@ function queryFrom(parameters: URLSearchParams): AuditLogQuery {
   return {
     page: numberParameter(parameters.get('page')),
     perPage: numberParameter(parameters.get('per_page')),
-    eventType: (parameters.get('event_type') ?? undefined) as AuditLogQuery['eventType'],
-    occurredFrom: dateParameter(parameters.get('occurred_from')),
-    occurredTo: dateParameter(parameters.get('occurred_to')),
+    search: parameters.get('search') ?? undefined,
+    sortBy: (parameters.get('sort_by') ?? undefined) as AuditLogQuery['sortBy'],
+    sortDirection: (parameters.get('sort_direction') ?? undefined) as AuditLogQuery['sortDirection'],
   };
 }
 
 function numberParameter(value: string | null): number | undefined {
   return value === null ? undefined : Number(value);
-}
-
-function dateParameter(value: string | null): Date | undefined {
-  return value === null ? undefined : new Date(value);
 }
 
 function writeJson(response: ServerResponse, status: number, body: unknown): void {

@@ -203,6 +203,8 @@ All REST endpoints are versioned under `/api/v1` and use JSON. Protected calls s
 
 Book write fields are `title`, `author`, `isbn`, and `published_year`. Laravel returns API Resources. API errors use JSON: `401`, `403`, `404`, and `500` return only a stable `message` (`Unauthenticated.`, `Forbidden.`, `Resource not found.`, or `Server error.`); `422` retains Laravel's `message` and field-level `errors`. Internal error details remain in server logs.
 
+Audit history uses the same list parameter names as Books: `page`, `per_page`, `search`, `sort_by`, and `sort_direction`. Its search is a trimmed, case-insensitive contains match over `event_type` and `event_id`; sortable fields are `event_type`, `event_id`, `actor_id`, and `occurred_at`. Without a requested sort it remains ordered by `occurred_at DESC`, then `persisted_at DESC`, then `event_id DESC`.
+
 ## Event contract — v1
 
 Laravel appends this JSON message to Redis Stream `book-events` after the MySQL transaction commits:

@@ -29,15 +29,16 @@ test.after(async () => {
   await pool.end();
 });
 
-test('returns ordered pages with event-type and occurrence filters', async () => {
+test('returns ordered pages with search and supported sorts', async () => {
   const page = await reader.list({ page: 1, perPage: 2 });
   const filtered = await reader.list({
     page: 1,
     perPage: 15,
-    eventType: 'book.updated',
-    occurredFrom: new Date('2026-07-28T00:00:00Z'),
-    occurredTo: new Date('2026-07-28T23:59:59Z'),
+    search: '000000000002',
+    sortBy: 'event_id',
+    sortDirection: 'asc',
   });
+  const sorted = await reader.list({ page: 1, perPage: 15, sortBy: 'event_type', sortDirection: 'asc' });
 
   assert.deepEqual(page.data.map((log) => log.eventId), [
     '00000000-0000-4000-8000-000000000003',
@@ -49,4 +50,5 @@ test('returns ordered pages with event-type and occurrence filters', async () =>
   );
   assert.deepEqual(filtered.data.map((log) => log.eventId), ['00000000-0000-4000-8000-000000000002']);
   assert.equal(filtered.total, 1);
+  assert.deepEqual(sorted.data.map((log) => log.eventType), ['book.created', 'book.deleted', 'book.updated']);
 });

@@ -14,10 +14,13 @@ export interface AuditLog {
 export interface AuditLogQuery {
   page?: number;
   perPage?: number;
-  eventType?: BookEventType;
-  occurredFrom?: Date;
-  occurredTo?: Date;
+  search?: string;
+  sortBy?: AuditLogSortBy;
+  sortDirection?: AuditLogSortDirection;
 }
+
+export type AuditLogSortBy = 'event_type' | 'event_id' | 'actor_id' | 'occurred_at';
+export type AuditLogSortDirection = 'asc' | 'desc';
 
 export interface AuditLogPage {
   data: AuditLog[];

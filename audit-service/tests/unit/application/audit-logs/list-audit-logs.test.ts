@@ -12,12 +12,18 @@ test('uses Book-style pagination defaults', async () => {
   assert.deepEqual(query, { page: 1, perPage: 15 });
 });
 
-test('rejects an invalid Audit-history query before reading', () => {
-  const reader: AuditLogReader = { async list() { throw new Error('must not read'); } };
+test('trims search and rejects invalid Audit-history queries before reading', async () => {
+  let query: unknown;
+  const reader: AuditLogReader = { async list(input) { query = input; return page(); } };
+
+  await new ListAuditLogs(reader).execute({ search: '  book.updated  ', sortBy: 'event_type', sortDirection: 'desc' });
+
+  assert.deepEqual(query, { page: 1, perPage: 15, search: 'book.updated', sortBy: 'event_type', sortDirection: 'desc' });
+  const failingReader: AuditLogReader = { async list() { throw new Error('must not read'); } };
 
   assert.throws(
-    () => new ListAuditLogs(reader).execute({ occurredFrom: new Date('2026-07-31T00:00:00Z'), occurredTo: new Date('2026-07-30T00:00:00Z') }),
-    /occurrence range is invalid/,
+    () => new ListAuditLogs(failingReader).execute({ sortBy: 'id' as never }),
+    /sort field is invalid/,
   );
 });
 

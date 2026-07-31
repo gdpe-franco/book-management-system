@@ -80,9 +80,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
-        - $ref: '#/components/parameters/AuditEventTypeFilter'
-        - $ref: '#/components/parameters/AuditOccurredFromFilter'
-        - $ref: '#/components/parameters/AuditOccurredToFilter'
+        - $ref: '#/components/parameters/AuditSearch'
+        - $ref: '#/components/parameters/AuditSortBy'
+        - $ref: '#/components/parameters/SortDirection'
       responses:
         '200':
           description: Paginated Audit history ordered by occurrence time.
@@ -483,21 +483,16 @@ components:
       schema:
         type: string
         enum: [asc, desc]
-    AuditEventTypeFilter:
-      name: event_type
+    AuditSearch:
+      name: search
+      in: query
+      description: Trimmed, case-insensitive contains search across event type and event ID.
+      schema:
+        type: string
+        maxLength: 255
+    AuditSortBy:
+      name: sort_by
       in: query
       schema:
         type: string
-        enum: [book.created, book.updated, book.deleted]
-    AuditOccurredFromFilter:
-      name: occurred_from
-      in: query
-      schema:
-        type: string
-        format: date-time
-    AuditOccurredToFilter:
-      name: occurred_to
-      in: query
-      schema:
-        type: string
-        format: date-time
+        enum: [event_type, event_id, actor_id, occurred_at]

@@ -14,7 +14,7 @@ export class MysqlAuditLogReader implements AuditLogReader {
     const [rows] = await this.pool.execute<RowDataPacket[]>(`
       SELECT event_id, event_type, event_version, occurred_at, actor_id, book_snapshot, changes, persisted_at
       FROM audit_logs${where}
-      ORDER BY occurred_at DESC, persisted_at DESC, event_id DESC
+      ${orderBy(query)}
       LIMIT ?, ?
     `, [...parameters, String((query.page - 1) * query.perPage), String(query.perPage)]);
 
@@ -32,22 +32,28 @@ function conditions(query: NormalizedQuery): { where: string; parameters: Array<
   const clauses: string[] = [];
   const parameters: Array<string | Date> = [];
 
-  if (query.eventType !== undefined) {
-    clauses.push('event_type = ?');
-    parameters.push(query.eventType);
-  }
-
-  if (query.occurredFrom !== undefined) {
-    clauses.push('occurred_at >= ?');
-    parameters.push(query.occurredFrom);
-  }
-
-  if (query.occurredTo !== undefined) {
-    clauses.push('occurred_at <= ?');
-    parameters.push(query.occurredTo);
+  if (query.search !== undefined) {
+    clauses.push('(LOWER(event_type) LIKE LOWER(?) OR LOWER(event_id) LIKE LOWER(?))');
+    parameters.push(`%${query.search}%`, `%${query.search}%`);
   }
 
   return { where: clauses.length === 0 ? '' : ` WHERE ${clauses.join(' AND ')}`, parameters };
+}
+
+function orderBy(query: NormalizedQuery): string {
+  if (query.sortBy === undefined) {
+    return 'ORDER BY occurred_at DESC, persisted_at DESC, event_id DESC';
+  }
+
+  const column = {
+    event_type: 'event_type',
+    event_id: 'event_id',
+    actor_id: 'actor_id',
+    occurred_at: 'occurred_at',
+  }[query.sortBy];
+  const direction = query.sortDirection ?? 'asc';
+
+  return `ORDER BY ${column} ${direction.toUpperCase()}, event_id ${direction.toUpperCase()}`;
 }
 
 function toAuditLog(row: RowDataPacket): AuditLog {

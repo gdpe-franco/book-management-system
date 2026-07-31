@@ -39,7 +39,7 @@ test('returns authenticated Audit history and health', async () => {
 
   try {
     const health = await fetch(`${origin}/health`);
-    const response = await fetch(`${origin}/api/v1/audit-logs?page=2&per_page=10&event_type=book.updated&occurred_from=2026-07-28T00:00:00Z&occurred_to=2026-07-28T23:59:59Z`, {
+    const response = await fetch(`${origin}/api/v1/audit-logs?page=2&per_page=10&search=book.updated&sort_by=event_type&sort_direction=desc`, {
       headers: { authorization: 'Bearer valid-token' },
     });
 
@@ -61,9 +61,9 @@ test('returns authenticated Audit history and health', async () => {
     assert.deepEqual(query, {
       page: 2,
       perPage: 10,
-      eventType: 'book.updated',
-      occurredFrom: new Date('2026-07-28T00:00:00Z'),
-      occurredTo: new Date('2026-07-28T23:59:59Z'),
+      search: 'book.updated',
+      sortBy: 'event_type',
+      sortDirection: 'desc',
     });
   } finally {
     await close(server);
@@ -101,7 +101,7 @@ test('returns validation errors for invalid Audit-history queries', async () => 
   const origin = await listen(server);
 
   try {
-    const response = await fetch(`${origin}/api/v1/audit-logs?page=0`, { headers: { authorization: 'Bearer valid-token' } });
+    const response = await fetch(`${origin}/api/v1/audit-logs?sort_by=id`, { headers: { authorization: 'Bearer valid-token' } });
 
     assert.equal(response.status, 422);
     assert.deepEqual(await response.json(), {
