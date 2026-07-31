@@ -39,7 +39,6 @@ class ReadTest extends TestCase
             'role' => 'superadmin',
             'name' => 'Zebra',
             'email' => 'zebra@internal.test',
-            'created_at' => now()->addDay(),
         ]));
         $user = User::factory()->create($attributes);
         User::factory()->create(['email' => 'other@internal.test']);
@@ -65,7 +64,6 @@ class ReadTest extends TestCase
             'role' => 'superadmin',
             'name' => 'Zebra',
             'email' => 'zebra@internal.test',
-            'created_at' => now()->addDay(),
         ]));
         $first = User::factory()->create([$field => $firstValue]);
         User::factory()->create([$field => $lastValue]);
@@ -81,7 +79,7 @@ class ReadTest extends TestCase
             'name' => ['name', 'Ada', 'Zoe'],
             'email' => ['email', 'ada@example.test', 'zoe@example.test'],
             'role' => ['role', 'admin', 'superadmin'],
-            'created at' => ['created_at', now()->subDay(), now()],
+            'created at' => ['created_at', now()->subDays(2), now()->subDay()],
         ];
     }
 

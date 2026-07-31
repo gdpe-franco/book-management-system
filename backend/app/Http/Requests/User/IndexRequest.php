@@ -2,27 +2,13 @@
 
 namespace App\Http\Requests\User;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
+use App\Http\Requests\ListRequest;
 
-class IndexRequest extends FormRequest
+class IndexRequest extends ListRequest
 {
-    public function authorize(): bool
+    /** @return list<string> */
+    protected function sortableFields(): array
     {
-        return true;
-    }
-
-    /**
-     * @return array<string, list<string>>
-     */
-    public function rules(): array
-    {
-        return [
-            'search' => ['nullable', 'string', 'max:255'],
-            'page' => ['nullable', 'integer', 'min:1'],
-            'per_page' => ['nullable', 'integer', 'between:1,100'],
-            'sort_by' => ['nullable', 'string', Rule::in(['name', 'email', 'role', 'created_at'])],
-            'sort_direction' => ['nullable', 'string', Rule::in(['asc', 'desc'])],
-        ];
+        return ['name', 'email', 'role', 'created_at'];
     }
 }

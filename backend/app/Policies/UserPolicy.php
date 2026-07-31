@@ -8,6 +8,6 @@ class UserPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->role === 'superadmin';
+        return $user->role === User::ROLE_SUPERADMIN;
     }
 }
