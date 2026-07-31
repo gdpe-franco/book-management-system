@@ -64,6 +64,30 @@ paths:
                     $ref: '#/components/schemas/User'
         '401':
           $ref: '#/components/responses/Unauthenticated'
+  /api/v1/audit-logs:
+    get:
+      tags: [Audit logs]
+      summary: List persisted Audit logs
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/AuditEventTypeFilter'
+        - $ref: '#/components/parameters/AuditOccurredFromFilter'
+        - $ref: '#/components/parameters/AuditOccurredToFilter'
+      responses:
+        '200':
+          description: Paginated Audit history ordered by occurrence time.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAuditLogs'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/ServerError'
   /api/v1/auth/logout:
     post:
       tags: [Authentication]
@@ -307,6 +331,56 @@ components:
               type: integer
             total:
               type: integer
+    AuditLog:
+      type: object
+      required: [event_id, event_type, event_version, occurred_at, actor_id, book_snapshot, changes, persisted_at]
+      properties:
+        event_id:
+          type: string
+          format: uuid
+        event_type:
+          type: string
+          enum: [book.created, book.updated, book.deleted]
+        event_version:
+          type: integer
+          minimum: 1
+        occurred_at:
+          type: string
+          format: date-time
+          description: UTC timestamp with second precision.
+        actor_id:
+          type: integer
+          minimum: 1
+        book_snapshot:
+          type: object
+          additionalProperties: true
+        changes:
+          type: object
+          additionalProperties: true
+        persisted_at:
+          type: string
+          format: date-time
+          description: UTC timestamp with second precision.
+    PaginatedAuditLogs:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLog'
+        meta:
+          type: object
+          required: [current_page, last_page, per_page, total]
+          properties:
+            current_page:
+              type: integer
+            last_page:
+              type: integer
+            per_page:
+              type: integer
+            total:
+              type: integer
     TokenResponse:
       type: object
       required: [data, token, token_type]
@@ -356,6 +430,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorMessage'
+    ServerError:
+      description: The service could not complete the request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
     ValidationError:
       description: Request validation failed.
       content:
@@ -395,3 +475,21 @@ components:
       schema:
         type: string
         maxLength: 13
+    AuditEventTypeFilter:
+      name: event_type
+      in: query
+      schema:
+        type: string
+        enum: [book.created, book.updated, book.deleted]
+    AuditOccurredFromFilter:
+      name: occurred_from
+      in: query
+      schema:
+        type: string
+        format: date-time
+    AuditOccurredToFilter:
+      name: occurred_to
+      in: query
+      schema:
+        type: string
+        format: date-time
