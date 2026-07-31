@@ -18,6 +18,7 @@ Read `PROJECT.md` and `ARCHITECTURE.md` before work. The source PDF remains the 
 - Record durable decisions in the appropriate authoritative document; do not let feature artifacts override them.
 - Never commit, repeat, log, or document secrets, credentials, tokens, private keys, or local environment-file contents. Use configuration keys and `.env.example` placeholders only.
 - Run the checks specified by the affected project area. Do not commit broken code, generated runtime files, dependencies that belong in ignored directories, or unrelated changes.
+- Use concise Conventional Commit subjects without user-story or PRD identifiers.
 
 A story is complete only when its acceptance criteria and applicable checks pass, all affected services start together, and durable documentation is current.
 
