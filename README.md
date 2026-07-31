@@ -49,7 +49,7 @@ make test-redis-init # clear Redis DB 2, used only by tests
 
 `make frontend-check` runs Prettier's formatting check, Vue-aware ESLint static analysis, a strict TypeScript check with `vue-tsc`, and the Vite production build in the running `frontend` container. A future test-tooling feature can add browser or component tests when there is behavior that benefits from them.
 
-The frontend's Vite proxy reads the non-secret `FRONTEND_API_PROXY_TARGET` environment key. Compose supplies its local default; override the key in your ignored root `.env` only when the Laravel API host or port changes. The dashboard reads the public Audit-service origin from `VITE_AUDIT_API_HOST`, which Compose defaults to `http://localhost:3000`; change it only when that browser-reachable host or port changes.
+Compose derives its internal Laravel target for both the frontend proxy and Audit service from the non-secret `BACKEND_API_HOST` key. It derives the Dashboard's browser-reachable Audit-service origin from `AUDIT_API_HOST`. Override either key in the ignored root `.env` only when its host or port changes; their local defaults are `http://backend:8000` and `http://localhost:3000`.
 
 ## Container commands
 

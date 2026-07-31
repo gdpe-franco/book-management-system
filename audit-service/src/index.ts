@@ -34,7 +34,7 @@ void startServer(
   },
   () => {
     const frontendOrigin = process.env.FRONTEND_ORIGIN ?? 'http://localhost:5174';
-    const validateAuditAccess = new ValidateAuditAccess(new LaravelTokenValidator(requiredEnvironment('LARAVEL_BASE_URL')));
+    const validateAuditAccess = new ValidateAuditAccess(new LaravelTokenValidator(requiredEnvironment('BACKEND_API_HOST')));
     const server = createAuditServer(
       validateAuditAccess,
       new ListAuditLogs(new MysqlAuditLogReader(createMysqlPool(mysqlConfigFromEnvironment()))),
