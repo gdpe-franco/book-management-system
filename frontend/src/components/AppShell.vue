@@ -55,6 +55,12 @@ function clearNotifications(): void {
   closeMenus();
 }
 
+function openAuditLog(eventId: string): void {
+  notifications.markRead(eventId);
+  closeMenus();
+  void router.push({ path: "/audit-logs", query: { highlight: eventId } });
+}
+
 function notificationTitle(notification: {
   book_snapshot: { title?: unknown };
 }): string {
@@ -167,8 +173,10 @@ onUnmounted(() => notifications.disconnect());
                   v-for="notification in notifications.notifications"
                   :key="notification.event_id"
                 >
-                  <strong>{{ notification.event_type }}</strong>
-                  <span>{{ notificationTitle(notification) }}</span>
+                  <button @click="openAuditLog(notification.event_id)">
+                    <strong>{{ notification.event_type }}</strong>
+                    <span>{{ notificationTitle(notification) }}</span>
+                  </button>
                 </li>
               </ul>
             </div>

@@ -54,6 +54,19 @@ export const useNotificationStore = defineStore("notifications", {
       saveNotifications(this.userId, this.notifications);
     },
 
+    markRead(eventId: string): void {
+      if (this.userId === null) return;
+
+      const notifications = this.notifications.filter(
+        (notification) => notification.event_id !== eventId,
+      );
+
+      if (notifications.length === this.notifications.length) return;
+
+      this.notifications = notifications;
+      saveNotifications(this.userId, this.notifications);
+    },
+
     clear(): void {
       const userId = this.userId;
 

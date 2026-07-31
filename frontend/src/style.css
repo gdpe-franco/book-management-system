@@ -340,20 +340,31 @@ a:focus-visible {
   padding: 0;
 }
 
-.notification-list li {
+.notification-list button {
+  appearance: none;
+  background: transparent;
+  border: 0;
   border-radius: 0.4rem;
+  color: inherit;
+  cursor: pointer;
   display: grid;
   gap: 0.15rem;
+  text-align: left;
+  width: 100%;
   padding: 0.65rem;
 }
 
-.notification-list li:hover {
+.notification-list button:hover {
   background: #f1e5ed;
 }
 
 .notification-list span {
   color: #6d5a68;
   font-size: 0.85rem;
+}
+
+.audit-log-highlight > td {
+  background: #f1e5ed;
 }
 
 .profile-menu-panel small {

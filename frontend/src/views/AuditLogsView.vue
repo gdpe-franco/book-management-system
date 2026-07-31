@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Column from "primevue/column";
@@ -34,6 +34,7 @@ type SortEvent = {
 };
 
 const auth = useAuthStore();
+const route = useRoute();
 const router = useRouter();
 const loading = ref(true);
 const error = ref("");
@@ -49,6 +50,9 @@ const search = ref("");
 const appliedSearch = ref("");
 const sortField = ref<string>();
 const sortOrder = ref<1 | -1 | 0>(0);
+const highlightedEventId = computed(() =>
+  typeof route.query.highlight === "string" ? route.query.highlight : undefined,
+);
 
 async function expireSession(): Promise<void> {
   auth.clear();
@@ -135,6 +139,12 @@ function occurredAt(log: AuditLog): string {
   return new Date(log.occurred_at).toLocaleString();
 }
 
+function rowClass(log: AuditLog): string | undefined {
+  return log.event_id === highlightedEventId.value
+    ? "audit-log-highlight"
+    : undefined;
+}
+
 onMounted(() => void loadAuditLogs());
 </script>
 
@@ -182,6 +192,7 @@ onMounted(() => void loadAuditLogs());
       removable-sort
       :rows="perPage"
       :rows-per-page-options="[15, 30, 50]"
+      :row-class="rowClass"
       :sort-field="sortField"
       :sort-order="sortOrder"
       :total-records="pagination.total"
