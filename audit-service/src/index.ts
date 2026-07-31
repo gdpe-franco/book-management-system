@@ -10,6 +10,7 @@ import { MysqlAuditLogReader } from './infrastructure/mysql/mysql-audit-log-read
 import { MysqlAuditLogStore } from './infrastructure/mysql/mysql-audit-log-store.js';
 import { LaravelTokenValidator } from './infrastructure/laravel/laravel-token-validator.js';
 import { connectBookEventStream } from './infrastructure/redis/redis-book-event-stream.js';
+import { attachAuditSocketServer } from './infrastructure/socketio/audit-socket-server.js';
 
 const port = Number(process.env.PORT ?? 3000);
 const staleEntryIdleMs = 60_000;
@@ -23,10 +24,16 @@ void startServer(
     await stream.ensureGroup();
     void consumeNewEvents(stream);
   },
-  () => createAuditServer(
-    new ValidateAuditAccess(new LaravelTokenValidator(requiredEnvironment('LARAVEL_BASE_URL'))),
-    new ListAuditLogs(new MysqlAuditLogReader(createMysqlPool(mysqlConfigFromEnvironment()))),
-  ),
+  () => {
+    const server = createAuditServer(
+      new ValidateAuditAccess(new LaravelTokenValidator(requiredEnvironment('LARAVEL_BASE_URL'))),
+      new ListAuditLogs(new MysqlAuditLogReader(createMysqlPool(mysqlConfigFromEnvironment()))),
+    );
+
+    attachAuditSocketServer(server, process.env.FRONTEND_ORIGIN ?? 'http://localhost:5174');
+
+    return server;
+  },
 ).catch(() => {
   console.error('Audit service startup failed.');
   process.exitCode = 1;
