@@ -348,6 +348,17 @@ a:focus-visible {
   margin: 0;
 }
 
+.books-heading-actions {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
+.books-heading-actions p {
+  color: #6d5a68;
+  margin: 0;
+}
+
 .books-filters {
   max-width: none;
 }

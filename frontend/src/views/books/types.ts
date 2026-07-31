@@ -16,6 +16,10 @@ export type BookList = {
   };
 };
 
+export type BookForm = Omit<Book, "id">;
+export type FieldErrors = Partial<Record<keyof BookForm, string[]>>;
+export type ErrorResponse = { errors?: FieldErrors };
+
 export type PageEvent = { page: number; rows: number };
 export type SortEvent = {
   sortField?: string | ((item: unknown) => string);

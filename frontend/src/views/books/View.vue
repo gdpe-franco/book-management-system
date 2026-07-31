@@ -1,23 +1,25 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Dialog from "primevue/dialog";
-import InputNumber from "primevue/inputnumber";
 import InputText from "primevue/inputtext";
-import Message from "primevue/message";
 import { useToast } from "primevue/usetoast";
+import BookFormFields from "./Form.vue";
 import BookTable from "./Table.vue";
-import type { Book, BookList, PageEvent, SortEvent } from "./types";
+import type {
+  Book,
+  BookForm,
+  BookList,
+  ErrorResponse,
+  FieldErrors,
+  PageEvent,
+  SortEvent,
+} from "./types";
 import { useAuthStore } from "../../stores/auth";
 
 type BookResponse = { data: Book };
-type BookForm = Omit<Book, "id">;
-type FieldErrors = Partial<Record<keyof BookForm, string[]>>;
-type ErrorResponse = {
-  errors?: FieldErrors;
-};
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -41,13 +43,21 @@ const editing = ref(false);
 const saving = ref(false);
 const selectedBook = ref<Book>();
 const fieldErrors = ref<FieldErrors>({});
-const bookForm = reactive<BookForm>({
-  title: "",
-  author: "",
-  isbn: "",
-  published_year: new Date().getFullYear(),
-});
-const maximumPublishedYear = new Date().getFullYear();
+const createVisible = ref(false);
+const creating = ref(false);
+const createErrors = ref<FieldErrors>({});
+
+function blankForm(): BookForm {
+  return {
+    title: "",
+    author: "",
+    isbn: "",
+    published_year: new Date().getFullYear(),
+  };
+}
+
+const bookForm = ref<BookForm>(blankForm());
+const createForm = ref<BookForm>(blankForm());
 
 async function expireSession(): Promise<void> {
   auth.clear();
@@ -134,7 +144,7 @@ function closeBook(): void {
 function startEditing(): void {
   if (selectedBook.value === undefined) return;
 
-  Object.assign(bookForm, selectedBook.value);
+  bookForm.value = { ...selectedBook.value };
   fieldErrors.value = {};
   editing.value = true;
 }
@@ -157,7 +167,7 @@ async function saveBook(): Promise<void> {
         Authorization: `Bearer ${auth.token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(bookForm),
+      body: JSON.stringify(bookForm.value),
     });
 
     if (response.status === 401) {
@@ -199,6 +209,69 @@ async function saveBook(): Promise<void> {
   }
 }
 
+function openCreate(): void {
+  createForm.value = blankForm();
+  createErrors.value = {};
+  createVisible.value = true;
+}
+
+function closeCreate(): void {
+  createVisible.value = false;
+  createErrors.value = {};
+}
+
+async function createBook(): Promise<void> {
+  if (auth.token === null) return;
+
+  creating.value = true;
+  createErrors.value = {};
+
+  try {
+    const response = await fetch("/api/v1/books", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${auth.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(createForm.value),
+    });
+
+    if (response.status === 401) {
+      await expireSession();
+
+      return;
+    }
+
+    const body = (await response.json()) as ErrorResponse;
+
+    if (response.status === 422) {
+      createErrors.value = body.errors ?? {};
+
+      return;
+    }
+
+    if (!response.ok) throw new Error("Unable to create book.");
+
+    closeCreate();
+    await loadBooks(pagination.value.current_page);
+    toast.add({
+      severity: "success",
+      summary: "Book created",
+      detail: "The catalog was updated.",
+      life: 3000,
+    });
+  } catch {
+    toast.add({
+      severity: "error",
+      summary: "Create failed",
+      detail: "The book could not be created. Please try again.",
+      life: 5000,
+    });
+  } finally {
+    creating.value = false;
+  }
+}
+
 onMounted(() => void loadBooks());
 </script>
 
@@ -209,7 +282,10 @@ onMounted(() => void loadBooks());
         <p class="card-kicker">Catalog</p>
         <h2>Books</h2>
       </div>
-      <p>{{ pagination.total }} active books</p>
+      <div class="books-heading-actions">
+        <p>{{ pagination.total }} active books</p>
+        <Button label="Create book" @click="openCreate" />
+      </div>
     </div>
 
     <Card class="books-filters">
@@ -281,48 +357,7 @@ onMounted(() => void loadBooks());
         class="book-modal-form"
         @submit.prevent="saveBook"
       >
-        <label>
-          Title
-          <InputText v-model="bookForm.title" maxlength="255" required />
-          <Message v-if="fieldErrors.title" severity="error" size="small">{{
-            fieldErrors.title[0]
-          }}</Message>
-        </label>
-        <label>
-          Author
-          <InputText v-model="bookForm.author" maxlength="255" required />
-          <Message v-if="fieldErrors.author" severity="error" size="small">{{
-            fieldErrors.author[0]
-          }}</Message>
-        </label>
-        <label>
-          ISBN
-          <InputText
-            v-model="bookForm.isbn"
-            inputmode="numeric"
-            maxlength="13"
-            required
-          />
-          <Message v-if="fieldErrors.isbn" severity="error" size="small">{{
-            fieldErrors.isbn[0]
-          }}</Message>
-        </label>
-        <label>
-          Published year
-          <InputNumber
-            v-model="bookForm.published_year"
-            :max="maximumPublishedYear"
-            :min="1450"
-            required
-            :use-grouping="false"
-          />
-          <Message
-            v-if="fieldErrors.published_year"
-            severity="error"
-            size="small"
-            >{{ fieldErrors.published_year[0] }}</Message
-          >
-        </label>
+        <BookFormFields v-model="bookForm" :errors="fieldErrors" />
       </form>
       <template #footer>
         <template v-if="editing">
@@ -343,6 +378,31 @@ onMounted(() => void loadBooks());
           <Button label="Close" severity="secondary" text @click="closeBook" />
           <Button label="Edit" @click="startEditing" />
         </template>
+      </template>
+    </Dialog>
+
+    <Dialog
+      v-model:visible="createVisible"
+      header="Create book"
+      modal
+      :style="{ width: 'min(100vw - 2rem, 28rem)' }"
+      @hide="closeCreate"
+    >
+      <form
+        id="create-book-form"
+        class="book-modal-form"
+        @submit.prevent="createBook"
+      >
+        <BookFormFields v-model="createForm" :errors="createErrors" />
+      </form>
+      <template #footer>
+        <Button label="Cancel" severity="secondary" text @click="closeCreate" />
+        <Button
+          form="create-book-form"
+          label="Create book"
+          :loading="creating"
+          type="submit"
+        />
       </template>
     </Dialog>
   </section>
