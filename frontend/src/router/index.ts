@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import type { RouteMeta, RouteRecordRaw } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import AuthView from "../views/AuthView.vue";
 import RoutePlaceholder from "../views/RoutePlaceholder.vue";
 
 declare module "vue-router" {
@@ -49,18 +50,18 @@ const router = createRouter({
     route("/users", "Users", "User management is deferred until handoff.", {
       requiresAuth: true,
     }),
-    route(
-      "/login",
-      "Login",
-      "Sign-in will be available in the next authentication story.",
-      { guestOnly: true },
-    ),
-    route(
-      "/register",
-      "Register",
-      "Registration will be available in the next authentication story.",
-      { guestOnly: true },
-    ),
+    {
+      path: "/login",
+      component: AuthView,
+      props: { mode: "login" },
+      meta: { guestOnly: true },
+    },
+    {
+      path: "/register",
+      component: AuthView,
+      props: { mode: "register" },
+      meta: { guestOnly: true },
+    },
     { path: "/:pathMatch(.*)*", redirect: "/" },
   ],
 });

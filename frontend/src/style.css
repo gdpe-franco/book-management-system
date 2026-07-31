@@ -28,6 +28,28 @@ a:focus-visible {
   place-items: center;
 }
 
+.auth-page {
+  display: grid;
+  min-height: 100svh;
+  padding: 1.5rem;
+  place-items: center;
+}
+
+.auth-card {
+  width: min(100%, 28rem);
+}
+
+.auth-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.auth-form label {
+  color: #372535;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
 .placeholder-card {
   width: min(100%, 32rem);
 }

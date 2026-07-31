@@ -42,20 +42,45 @@ export const useAuthStore = defineStore("auth", {
 
       this.token = token;
 
+      const user = await this.fetchUser(token);
+
+      if (user === null) {
+        this.clear();
+
+        return;
+      }
+
+      this.user = user;
+    },
+
+    async establish(token: string): Promise<boolean> {
+      this.token = token;
+      localStorage.setItem(tokenKey, token);
+
+      const user = await this.fetchUser(token);
+
+      if (user === null) {
+        this.clear();
+
+        return false;
+      }
+
+      this.user = user;
+
+      return true;
+    },
+
+    async fetchUser(token: string): Promise<User | null> {
       try {
         const response = await fetch("/api/v1/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        if (!response.ok) {
-          this.clear();
+        if (!response.ok) return null;
 
-          return;
-        }
-
-        this.user = ((await response.json()) as { data: User }).data;
+        return ((await response.json()) as { data: User }).data;
       } catch {
-        this.clear();
+        return null;
       }
     },
   },
