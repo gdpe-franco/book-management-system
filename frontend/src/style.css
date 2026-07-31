@@ -430,6 +430,11 @@ a:focus-visible {
   width: 100%;
 }
 
+.book-delete-message {
+  line-height: 1.6;
+  margin: 0;
+}
+
 @media (max-width: 767px) {
   .app-shell {
     display: block;

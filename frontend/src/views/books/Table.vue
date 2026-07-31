@@ -16,6 +16,7 @@ defineProps<{
 const emit = defineEmits<{
   page: [event: PageEvent];
   sort: [event: SortEvent];
+  remove: [book: Book];
   view: [book: Book];
 }>();
 </script>
@@ -44,10 +45,20 @@ const emit = defineEmits<{
     <Column header="Actions">
       <template #body="{ data }">
         <Button
-          label="View"
+          v-tooltip.top="'View book'"
+          aria-label="View book"
+          icon="pi pi-eye"
           severity="secondary"
           text
           @click="emit('view', data)"
+        />
+        <Button
+          v-tooltip.top="'Delete book'"
+          aria-label="Delete book"
+          icon="pi pi-trash"
+          severity="danger"
+          text
+          @click="emit('remove', data)"
         />
       </template>
     </Column>

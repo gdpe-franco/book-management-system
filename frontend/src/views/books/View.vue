@@ -46,6 +46,9 @@ const fieldErrors = ref<FieldErrors>({});
 const createVisible = ref(false);
 const creating = ref(false);
 const createErrors = ref<FieldErrors>({});
+const deleteVisible = ref(false);
+const deleting = ref(false);
+const bookToDelete = ref<Book>();
 
 function blankForm(): BookForm {
   return {
@@ -272,6 +275,59 @@ async function createBook(): Promise<void> {
   }
 }
 
+function openDelete(book: Book): void {
+  bookToDelete.value = book;
+  deleteVisible.value = true;
+}
+
+function closeDelete(): void {
+  deleteVisible.value = false;
+  bookToDelete.value = undefined;
+}
+
+async function deleteBook(): Promise<void> {
+  if (auth.token === null || bookToDelete.value === undefined) return;
+
+  deleting.value = true;
+
+  try {
+    const response = await fetch(`/api/v1/books/${bookToDelete.value.id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${auth.token}` },
+    });
+
+    if (response.status === 401) {
+      await expireSession();
+
+      return;
+    }
+
+    if (!response.ok) throw new Error("Unable to delete book.");
+
+    const page =
+      books.value.length === 1 && pagination.value.current_page > 1
+        ? pagination.value.current_page - 1
+        : pagination.value.current_page;
+    closeDelete();
+    await loadBooks(page);
+    toast.add({
+      severity: "success",
+      summary: "Book deleted",
+      detail: "The book is no longer in the active catalog.",
+      life: 3000,
+    });
+  } catch {
+    toast.add({
+      severity: "error",
+      summary: "Delete failed",
+      detail: "The book could not be deleted. Please try again.",
+      life: 5000,
+    });
+  } finally {
+    deleting.value = false;
+  }
+}
+
 onMounted(() => void loadBooks());
 </script>
 
@@ -322,6 +378,7 @@ onMounted(() => void loadBooks());
       :sort-field="sortField"
       :sort-order="sortOrder"
       @page="page"
+      @remove="openDelete"
       @sort="sort"
       @view="openBook"
     />
@@ -402,6 +459,28 @@ onMounted(() => void loadBooks());
           label="Create book"
           :loading="creating"
           type="submit"
+        />
+      </template>
+    </Dialog>
+
+    <Dialog
+      v-model:visible="deleteVisible"
+      header="Delete book"
+      modal
+      :style="{ width: 'min(100vw - 2rem, 28rem)' }"
+      @hide="closeDelete"
+    >
+      <p v-if="bookToDelete" class="book-delete-message">
+        Delete <strong>{{ bookToDelete.title }}</strong> from the active
+        catalog?
+      </p>
+      <template #footer>
+        <Button label="Cancel" severity="secondary" text @click="closeDelete" />
+        <Button
+          label="Delete book"
+          severity="danger"
+          :loading="deleting"
+          @click="deleteBook"
         />
       </template>
     </Dialog>
