@@ -38,6 +38,7 @@ make logs     # follow service logs
 make down     # stop services; preserve databases and dependencies
 make check    # initialize isolated test stores, then run backend checks
 make audit-check # initialize the isolated audit test database, then lint, typecheck, and test the audit service
+make frontend-check # format check, Vue-aware lint, and production build for the dashboard
 make test-db-init # initialize the test database for an existing MySQL volume
 make test-redis-init # clear Redis DB 2, used only by tests
 ```
@@ -45,6 +46,8 @@ make test-redis-init # clear Redis DB 2, used only by tests
 `make check` runs Laravel Pint, Larastan/PHPStan (level 5), and the Laravel test suite in that order. It stops at the first failing check. Tests use `books_testing` in MySQL and Redis database `2`; `make check` clears only those test stores, never local Book, Audit, or Redis event data.
 
 `make audit-check` runs the Audit service ESLint check, TypeScript check, and Node.js tests in the running `audit-service` container. The service has separately named `*_TEST` settings; integration tests verify that they target `audit_testing` and Redis DB `2` before connecting. Tests remove only their own `audit_testing` tables and never read or write the local `audit` database.
+
+`make frontend-check` runs Prettier's formatting check, Vue-aware ESLint static analysis, a strict TypeScript check with `vue-tsc`, and the Vite production build in the running `frontend` container. A future test-tooling feature can add browser or component tests when there is behavior that benefits from them.
 
 ## Container commands
 

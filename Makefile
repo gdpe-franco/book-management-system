@@ -1,6 +1,6 @@
 COMPOSE := docker compose
 
-.PHONY: up down logs ps check audit-check test-db-init test-audit-db-init test-redis-init shell exec mysql-books mysql-audit redis-cli redis-test-cli
+.PHONY: up down logs ps check audit-check frontend-check test-db-init test-audit-db-init test-redis-init shell exec mysql-books mysql-audit redis-cli redis-test-cli
 
 up:
 	@test -f .env || cp .env.example .env
@@ -22,6 +22,9 @@ check: test-db-init test-redis-init
 
 audit-check: test-audit-db-init test-redis-init
 	$(COMPOSE) exec audit-service sh -c 'npm run lint && npm run typecheck && npm test'
+
+frontend-check:
+	$(COMPOSE) exec frontend npm run check
 
 test-db-init:
 	$(COMPOSE) exec mysql sh /docker-entrypoint-initdb.d/init-users.sh

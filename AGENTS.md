@@ -35,3 +35,9 @@ A story is complete only when its acceptance criteria and applicable checks pass
 - Keep domain and application code independent of transport, database-driver, and configuration imports. Put those concerns in infrastructure adapters and the composition root.
 - Use Node's built-in test runner for focused Audit-service tests. Integration tests must assert their `MYSQL_TEST_DATABASE` and `REDIS_TEST_DB` targets before connecting; they must use `audit_testing` and Redis DB `2`, never the local `audit` database or Redis DB `0`.
 - Place isolated tests in `audit-service/tests/unit/` and real dependency tests in `audit-service/tests/integration/`; mirror the relevant source path beneath each level.
+
+## Frontend quality
+
+- Run `make frontend-check` for Vue dashboard changes; it runs Prettier formatting checks, Vue-aware ESLint static analysis, strict TypeScript checks with `vue-tsc`, and the Vite production build in the frontend container.
+- Keep frontend state in Pinia and navigation in Vue Router. Use the configured PrimeVue preset and locally import only the components each view needs.
+- Keep the dashboard TypeScript strict. Do not add a test framework incidentally; introduce it in a deliberately scoped frontend feature when it provides clear value.

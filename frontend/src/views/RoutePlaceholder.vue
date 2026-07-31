@@ -1,11 +1,8 @@
-<script setup>
-import Button from 'primevue/button'
-import Card from 'primevue/card'
+<script setup lang="ts">
+import Button from "primevue/button";
+import Card from "primevue/card";
 
-defineProps({
-  title: { type: String, required: true },
-  description: { type: String, required: true },
-})
+defineProps<{ title: string; description: string }>();
 </script>
 
 <template>
