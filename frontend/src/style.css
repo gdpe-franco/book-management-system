@@ -1,9 +1,36 @@
 :root {
-  color: #372535;
-  background: #f8f7f8;
+  --app-accent: #8e5a7a;
+  --app-background: #f8f7f8;
+  --app-border: #e8dce5;
+  --app-caption: #8b7482;
+  --app-danger: #9d3d55;
+  --app-hover: #f1e5ed;
+  --app-link: #74445f;
+  --app-link-decoration: #d1abc1;
+  --app-muted: #6d5a68;
+  --app-on-accent: #fff;
+  --app-surface: #fff;
+  --app-text: #372535;
+  background: var(--app-background);
+  color: var(--app-text);
   font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+:root.app-dark,
+.app-shell--dark {
+  --app-accent: #d891b7;
+  --app-background: #303030;
+  --app-border: #555;
+  --app-caption: #b8b8b8;
+  --app-danger: #fca5a5;
+  --app-hover: #474747;
+  --app-link: #efb3d2;
+  --app-link-decoration: #855f76;
+  --app-muted: #d0d0d0;
+  --app-surface: #3a3a3a;
+  --app-text: #f5f5f5;
 }
 
 * {
@@ -17,7 +44,7 @@ body {
 
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #8e5a7a;
+  outline: 3px solid var(--app-accent);
   outline-offset: 3px;
 }
 
@@ -39,7 +66,7 @@ a:focus-visible {
 }
 
 .auth-form label {
-  color: #372535;
+  color: var(--app-text);
   font-weight: 600;
   margin-top: 0.5rem;
 }
@@ -50,24 +77,24 @@ a:focus-visible {
 }
 
 .auth-card a {
-  color: #74445f;
+  color: var(--app-link);
   font-weight: 600;
-  text-decoration-color: #d1abc1;
+  text-decoration-color: var(--app-link-decoration);
 }
 
 .auth-card a:hover {
-  color: #8e5a7a;
+  color: var(--app-accent);
 }
 
 .app-shell {
-  background: #f8f7f8;
+  background: var(--app-background);
   display: flex;
   min-height: 100svh;
 }
 
 .sidebar {
-  background: #fff;
-  border-right: 1px solid #e8dce5;
+  background: var(--app-surface);
+  border-right: 1px solid var(--app-border);
   display: flex;
   flex: 0 0 15rem;
   flex-direction: column;
@@ -77,7 +104,7 @@ a:focus-visible {
 
 .brand,
 .sidebar a {
-  color: #372535;
+  color: var(--app-text);
   text-decoration: none;
 }
 
@@ -108,7 +135,7 @@ a:focus-visible {
 
 .brand small,
 .user-summary small {
-  color: #6d5a68;
+  color: var(--app-muted);
   font-size: 0.75rem;
   font-weight: 500;
 }
@@ -116,9 +143,9 @@ a:focus-visible {
 .brand-mark,
 .avatar {
   align-items: center;
-  background: #8e5a7a;
+  background: var(--app-accent);
   border-radius: 0.65rem;
-  color: #fff;
+  color: var(--app-on-accent);
   display: inline-flex;
   font-size: 0.72rem;
   font-weight: 800;
@@ -131,7 +158,7 @@ a:focus-visible {
 .nav-caption,
 .header-kicker,
 .card-kicker {
-  color: #8b7482;
+  color: var(--app-caption);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -156,8 +183,8 @@ a:focus-visible {
 
 .sidebar nav a:hover,
 .sidebar nav a.router-link-exact-active {
-  background: #f1e5ed;
-  color: #74445f;
+  background: var(--app-hover);
+  color: var(--app-link);
 }
 
 .app-content {
@@ -169,8 +196,8 @@ a:focus-visible {
 
 .app-header {
   align-items: center;
-  background: #fff;
-  border-bottom: 1px solid #e8dce5;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--app-border);
   display: flex;
   gap: 1rem;
   justify-content: space-between;
@@ -208,10 +235,10 @@ a:focus-visible {
 .header-menu-button,
 .profile-button {
   align-items: center;
-  background: #fff;
-  border: 1px solid #e8dce5;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 999px;
-  color: #74445f;
+  color: var(--app-link);
   cursor: pointer;
   display: inline-flex;
   font: inherit;
@@ -240,10 +267,10 @@ a:focus-visible {
 
 .notification-button {
   align-items: center;
-  background: #fff;
-  border: 1px solid #e8dce5;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 999px;
-  color: #74445f;
+  color: var(--app-link);
   cursor: pointer;
   display: inline-flex;
   height: 2.25rem;
@@ -254,10 +281,10 @@ a:focus-visible {
 
 .notification-count {
   align-items: center;
-  background: #9d3d55;
-  border: 2px solid #fff;
+  background: var(--app-danger);
+  border: 2px solid var(--app-surface);
   border-radius: 999px;
-  color: #fff;
+  color: var(--app-on-accent);
   display: inline-flex;
   font-size: 0.65rem;
   font-weight: 700;
@@ -271,8 +298,8 @@ a:focus-visible {
 }
 
 .header-menu-panel {
-  background: #fff;
-  border: 1px solid #e8dce5;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 0.65rem;
   box-shadow: 0 12px 30px rgb(55 37 53 / 0.12);
   display: grid;
@@ -292,15 +319,15 @@ a:focus-visible {
 
 .header-menu-panel a {
   border-radius: 0.4rem;
-  color: #372535;
+  color: var(--app-text);
   padding: 0.65rem;
   text-decoration: none;
 }
 
 .header-menu-panel a:hover,
 .header-menu-panel a.router-link-exact-active {
-  background: #f1e5ed;
-  color: #74445f;
+  background: var(--app-hover);
+  color: var(--app-link);
 }
 
 .profile-menu-panel {
@@ -325,7 +352,7 @@ a:focus-visible {
 }
 
 .notification-empty {
-  color: #6d5a68;
+  color: var(--app-muted);
   margin: 0;
   padding: 0.65rem;
 }
@@ -355,20 +382,20 @@ a:focus-visible {
 }
 
 .notification-list button:hover {
-  background: #f1e5ed;
+  background: var(--app-hover);
 }
 
 .notification-list span {
-  color: #6d5a68;
+  color: var(--app-muted);
   font-size: 0.85rem;
 }
 
 .audit-log-highlight > td {
-  background: #f1e5ed;
+  background: var(--app-hover);
 }
 
 .profile-menu-panel small {
-  color: #6d5a68;
+  color: var(--app-muted);
   margin-top: -0.25rem;
 }
 
@@ -385,7 +412,7 @@ a:focus-visible {
 
 .content-card,
 .placeholder-card {
-  border: 1px solid #e8dce5;
+  border: 1px solid var(--app-border);
   box-shadow: 0 12px 30px rgb(55 37 53 / 0.05);
   max-width: 42rem;
 }
@@ -396,7 +423,7 @@ a:focus-visible {
 
 .content-card p,
 .placeholder-card p {
-  color: #6d5a68;
+  color: var(--app-muted);
   line-height: 1.6;
 }
 
@@ -411,7 +438,7 @@ a:focus-visible {
 }
 
 .profile-details dt {
-  color: #6d5a68;
+  color: var(--app-muted);
   font-size: 0.85rem;
 }
 
@@ -440,7 +467,7 @@ a:focus-visible {
 }
 
 .books-heading > p {
-  color: #6d5a68;
+  color: var(--app-muted);
   margin: 0;
 }
 
@@ -451,7 +478,7 @@ a:focus-visible {
 }
 
 .books-heading-actions p {
-  color: #6d5a68;
+  color: var(--app-muted);
   margin: 0;
 }
 
@@ -467,7 +494,7 @@ a:focus-visible {
 }
 
 .books-filter-form label {
-  color: #372535;
+  color: var(--app-text);
   display: grid;
   font-size: 0.85rem;
   font-weight: 600;
@@ -484,16 +511,16 @@ a:focus-visible {
 }
 
 .books-state {
-  background: #fff;
-  border: 1px solid #e8dce5;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 0.65rem;
-  color: #6d5a68;
+  color: var(--app-muted);
   margin: 0;
   padding: 1.25rem;
 }
 
 .books-state-error {
-  color: #9d3d55;
+  color: var(--app-danger);
 }
 
 .book-details,
@@ -505,7 +532,7 @@ a:focus-visible {
 }
 
 .book-details dt {
-  color: #6d5a68;
+  color: var(--app-muted);
   font-size: 0.85rem;
 }
 
@@ -514,7 +541,7 @@ a:focus-visible {
 }
 
 .book-modal-form label {
-  color: #372535;
+  color: var(--app-text);
   display: grid;
   font-size: 0.85rem;
   font-weight: 600;
@@ -565,7 +592,7 @@ a:focus-visible {
   }
 
   .app-header h1 {
-    color: #6d5a68;
+    color: var(--app-muted);
     font-size: 0.95rem;
     font-weight: 700;
     margin: 0;

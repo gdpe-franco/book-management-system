@@ -4,9 +4,11 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 import Button from "primevue/button";
 import { useAuthStore } from "../stores/auth";
 import { useNotificationStore } from "../stores/notifications";
+import { useThemeStore } from "../stores/theme";
 
 const auth = useAuthStore();
 const notifications = useNotificationStore();
+const theme = useThemeStore();
 const route = useRoute();
 const router = useRouter();
 const loggingOut = ref(false);
@@ -79,7 +81,7 @@ onUnmounted(() => notifications.disconnect());
 </script>
 
 <template>
-  <div class="app-shell">
+  <div :class="{ 'app-shell--dark': theme.dark }" class="app-shell">
     <aside :class="{ 'sidebar--collapsed': sidebarCollapsed }" class="sidebar">
       <div class="sidebar-brand-row">
         <Button
@@ -139,6 +141,13 @@ onUnmounted(() => notifications.disconnect());
           <h1>{{ pageTitle }}</h1>
         </div>
         <div class="header-actions">
+          <Button
+            :aria-label="theme.dark ? 'Use light mode' : 'Use dark mode'"
+            :icon="theme.dark ? 'pi pi-sun' : 'pi pi-moon'"
+            severity="secondary"
+            text
+            @click="theme.toggle"
+          />
           <details ref="notificationMenu" class="header-menu notification-menu">
             <summary
               class="notification-button"
