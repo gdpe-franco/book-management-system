@@ -27,7 +27,9 @@ export default [
     },
   },
   {
-    languageOptions: { globals: globals.browser },
+    languageOptions: {
+      globals: { ...globals.browser, __AUDIT_API_HOST__: "readonly" },
+    },
     rules: { "vue/multi-word-component-names": "off" },
   },
   prettier,

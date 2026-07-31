@@ -16,7 +16,7 @@ if (auditApiHost === undefined) {
 export default defineConfig({
   plugins: [vue()],
   define: {
-    "import.meta.env.VITE_AUDIT_API_HOST": JSON.stringify(auditApiHost),
+    __AUDIT_API_HOST__: JSON.stringify(auditApiHost),
   },
   server: {
     proxy: {
