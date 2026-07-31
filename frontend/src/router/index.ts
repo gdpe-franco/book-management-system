@@ -1,11 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
-import type { RouteMeta, RouteRecordRaw } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import AuthView from "../views/AuthView.vue";
 import DashboardView from "../views/DashboardView.vue";
 import ProfileView from "../views/ProfileView.vue";
 import AuditLogsView from "../views/AuditLogsView.vue";
-import RoutePlaceholder from "../views/RoutePlaceholder.vue";
 
 declare module "vue-router" {
   interface RouteMeta {
@@ -14,18 +12,6 @@ declare module "vue-router" {
     requiresSuperadmin?: boolean;
   }
 }
-
-const route = (
-  path: string,
-  title: string,
-  description: string,
-  meta: RouteMeta = {},
-): RouteRecordRaw => ({
-  path,
-  component: RoutePlaceholder,
-  props: { title, description },
-  meta,
-});
 
 const router = createRouter({
   history: createWebHistory(),
@@ -42,10 +28,11 @@ const router = createRouter({
       component: AuditLogsView,
       meta: { requiresAuth: true },
     },
-    route("/users", "Users", "User management is deferred until handoff.", {
-      requiresAuth: true,
-      requiresSuperadmin: true,
-    }),
+    {
+      path: "/users",
+      component: () => import("../views/users/View.vue"),
+      meta: { requiresAuth: true, requiresSuperadmin: true },
+    },
     {
       path: "/login",
       component: AuthView,
