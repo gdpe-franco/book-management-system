@@ -327,6 +327,68 @@ a:focus-visible {
   padding: 0;
 }
 
+.books-page {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.books-heading {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.books-heading h2 {
+  margin: 0.25rem 0 0;
+}
+
+.books-heading > p {
+  color: #6d5a68;
+  margin: 0;
+}
+
+.books-filters {
+  max-width: none;
+}
+
+.books-filter-form {
+  align-items: end;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.books-filter-form label {
+  color: #372535;
+  display: grid;
+  font-size: 0.85rem;
+  font-weight: 600;
+  gap: 0.4rem;
+}
+
+.books-filter-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.books-table {
+  overflow: hidden;
+}
+
+.books-state {
+  background: #fff;
+  border: 1px solid #e8dce5;
+  border-radius: 0.65rem;
+  color: #6d5a68;
+  margin: 0;
+  padding: 1.25rem;
+}
+
+.books-state-error {
+  color: #9d3d55;
+}
+
 @media (max-width: 767px) {
   .app-shell {
     display: block;
@@ -372,6 +434,15 @@ a:focus-visible {
 
   .app-main {
     padding: 1rem;
+  }
+
+  .books-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .books-filter-form {
+    grid-template-columns: 1fr;
   }
 }
 

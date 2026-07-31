@@ -21,10 +21,12 @@ class BookController extends Controller
     public function index(IndexRequest $request): BookCollection
     {
         $this->authorize('viewAny', Book::class);
+        $filters = $request->validated();
 
         return new BookCollection(
             Book::query()
-                ->filter($request->validated())
+                ->filter($filters)
+                ->orderBy($filters['sort_by'] ?? 'id', $filters['sort_direction'] ?? 'asc')
                 ->paginate($request->integer('per_page', 15)),
         );
     }

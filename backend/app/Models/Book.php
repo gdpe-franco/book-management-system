@@ -23,12 +23,15 @@ class Book extends Model
      */
     public function scopeFilter(Builder $query, array $filters): void
     {
-        foreach (['title', 'author', 'isbn'] as $field) {
-            $value = trim((string) ($filters[$field] ?? ''));
+        $search = trim((string) ($filters['search'] ?? ''));
 
-            if ($value !== '') {
-                $query->whereLike($field, "%{$value}%");
-            }
+        if ($search === '') {
+            return;
         }
+
+        $query->where(fn (Builder $query) => $query
+            ->whereLike('title', "%{$search}%")
+            ->orWhereLike('author', "%{$search}%")
+            ->orWhereLike('isbn', "%{$search}%"));
     }
 }

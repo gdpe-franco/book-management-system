@@ -27,25 +27,47 @@ class ReadTest extends TestCase
             ->assertJsonMissingPath('meta.links');
     }
 
-    #[DataProvider('filters')]
-    public function test_filters_books(string $field, string $value, array $attributes): void
+    #[DataProvider('searches')]
+    public function test_searches_books(string $value, array $attributes): void
     {
         Sanctum::actingAs(User::factory()->create());
         $book = Book::factory()->create($attributes);
         Book::factory()->create();
 
-        $this->getJson(route('books.index', [$field => " {$value} "]))
+        $this->getJson(route('books.index', ['search' => " {$value} "]))
             ->assertOk()
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.id', $book->id);
     }
 
-    public static function filters(): array
+    public static function searches(): array
     {
         return [
-            'title' => ['title', 'Nineteen', ['title' => 'Nineteen Eighty-Four']],
-            'author' => ['author', 'Orw', ['author' => 'George Orwell']],
-            'isbn' => ['isbn', '978000', ['isbn' => '9780000000000']],
+            'title' => ['Nineteen', ['title' => 'Nineteen Eighty-Four']],
+            'author' => ['Orw', ['author' => 'George Orwell']],
+            'isbn' => ['978000', ['isbn' => '9780000000000']],
+        ];
+    }
+
+    #[DataProvider('sorts')]
+    public function test_sorts_books(string $field, mixed $firstValue, mixed $lastValue): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+        $first = Book::factory()->create([$field => $firstValue]);
+        Book::factory()->create([$field => $lastValue]);
+
+        $this->getJson(route('books.index', ['sort_by' => $field, 'sort_direction' => 'asc']))
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $first->id);
+    }
+
+    public static function sorts(): array
+    {
+        return [
+            'title' => ['title', 'A title', 'Z title'],
+            'author' => ['author', 'A author', 'Z author'],
+            'isbn' => ['isbn', '0000000000000', '9999999999999'],
+            'published year' => ['published_year', 1450, 2026],
         ];
     }
 
@@ -93,13 +115,22 @@ class ReadTest extends TestCase
         ];
     }
 
-    public function test_limits_isbn_filter_length(): void
+    #[DataProvider('invalidOrdering')]
+    public function test_validates_ordering(string $parameter, string $value): void
     {
         Sanctum::actingAs(User::factory()->create());
 
-        $this->getJson(route('books.index', ['isbn' => str_repeat('1', 14)]))
+        $this->getJson(route('books.index', [$parameter => $value]))
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['isbn']);
+            ->assertJsonValidationErrors([$parameter]);
+    }
+
+    public static function invalidOrdering(): array
+    {
+        return [
+            'unsupported field' => ['sort_by', 'id'],
+            'unsupported direction' => ['sort_direction', 'sideways'],
+        ];
     }
 
     public function test_returns_not_found_for_unknown_book(): void

@@ -114,9 +114,9 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
-        - $ref: '#/components/parameters/BookTitleFilter'
-        - $ref: '#/components/parameters/BookAuthorFilter'
-        - $ref: '#/components/parameters/BookIsbnFilter'
+        - $ref: '#/components/parameters/BookSearch'
+        - $ref: '#/components/parameters/BookSortBy'
+        - $ref: '#/components/parameters/SortDirection'
       responses:
         '200':
           description: Paginated active books.
@@ -464,25 +464,25 @@ components:
         type: integer
         minimum: 1
         maximum: 100
-    BookTitleFilter:
-      name: title
+    BookSearch:
+      name: search
       in: query
-      description: Trimmed, case-insensitive contains filter.
+      description: Trimmed, case-insensitive contains search across title, author, and ISBN.
       schema:
         type: string
-    BookAuthorFilter:
-      name: author
+        maxLength: 255
+    BookSortBy:
+      name: sort_by
       in: query
-      description: Trimmed, case-insensitive contains filter.
       schema:
         type: string
-    BookIsbnFilter:
-      name: isbn
+        enum: [title, author, isbn, published_year]
+    SortDirection:
+      name: sort_direction
       in: query
-      description: Trimmed, case-insensitive contains filter.
       schema:
         type: string
-        maxLength: 13
+        enum: [asc, desc]
     AuditEventTypeFilter:
       name: event_type
       in: query

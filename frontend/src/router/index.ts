@@ -31,12 +31,11 @@ const router = createRouter({
   routes: [
     { path: "/", component: DashboardView, meta: { requiresAuth: true } },
     { path: "/profile", component: ProfileView, meta: { requiresAuth: true } },
-    route(
-      "/books",
-      "Books",
-      "Book management will be available in the next dashboard feature.",
-      { requiresAuth: true },
-    ),
+    {
+      path: "/books",
+      component: () => import("../views/books/BooksView.vue"),
+      meta: { requiresAuth: true },
+    },
     route(
       "/audit-logs",
       "Audit logs",

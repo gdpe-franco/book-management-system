@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Book;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class IndexRequest extends FormRequest
 {
@@ -22,11 +23,11 @@ class IndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['nullable', 'string', 'max:255'],
-            'author' => ['nullable', 'string', 'max:255'],
-            'isbn' => ['nullable', 'string', 'max:13'],
+            'search' => ['nullable', 'string', 'max:255'],
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'between:1,100'],
+            'sort_by' => ['nullable', 'string', Rule::in(['title', 'author', 'isbn', 'published_year'])],
+            'sort_direction' => ['nullable', 'string', Rule::in(['asc', 'desc'])],
         ];
     }
 }
