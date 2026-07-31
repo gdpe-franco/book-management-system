@@ -13,6 +13,8 @@ export async function connectBookEventStream(prefix = 'REDIS'): Promise<RedisBoo
 }
 
 export class RedisBookEventStream implements BookEventStream {
+  private claimCursor = '0-0';
+
   constructor(
     private readonly client: RedisClientType,
     private readonly consumer: string,
@@ -37,6 +39,21 @@ export class RedisBookEventStream implements BookEventStream {
     );
 
     return result?.flatMap((stream) => stream.messages.map(decodeDelivery)) ?? [];
+  }
+
+  async claimStale(minIdleMs: number, count = 10): Promise<BookEventDelivery[]> {
+    const result = await this.client.xAutoClaim(
+      streamName,
+      groupName,
+      this.consumer,
+      minIdleMs,
+      this.claimCursor,
+      { COUNT: count },
+    );
+
+    this.claimCursor = result.nextId;
+
+    return result.messages.filter((message): message is NonNullable<typeof message> => message !== null).map(decodeDelivery);
   }
 
   async acknowledge(id: string): Promise<void> {

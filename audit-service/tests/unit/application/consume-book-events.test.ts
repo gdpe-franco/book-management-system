@@ -10,6 +10,7 @@ test('persists a delivery before acknowledging it', async () => {
   const stream: BookEventStream = {
     async ensureGroup() {},
     async readNew() { return [{ id: '1-0', event: sampleEvent() }]; },
+    async claimStale() { return []; },
     async acknowledge() { calls.push('acknowledge'); },
   };
   const store: AuditLogStore = {
@@ -29,6 +30,7 @@ test('does not acknowledge a delivery when persistence fails', async () => {
   const stream: BookEventStream = {
     async ensureGroup() {},
     async readNew() { return [{ id: '1-0', event: sampleEvent() }]; },
+    async claimStale() { return []; },
     async acknowledge() { acknowledged = true; },
   };
   const store: AuditLogStore = { async persist() { throw new Error('database unavailable'); } };

@@ -8,9 +8,17 @@ export class ConsumeBookEvents {
   ) {}
 
   async execute(): Promise<number> {
+    return this.process(await this.stream.readNew(10, 5000));
+  }
+
+  async reclaimStale(minIdleMs: number): Promise<number> {
+    return this.process(await this.stream.claimStale(minIdleMs, 10));
+  }
+
+  private async process(deliveries: Awaited<ReturnType<BookEventStream['readNew']>>): Promise<number> {
     let duplicates = 0;
 
-    for (const delivery of await this.stream.readNew(10, 5000)) {
+    for (const delivery of deliveries) {
       if (await this.persistAuditEvent.execute(delivery.event) === 'already_exists') {
         duplicates += 1;
       }

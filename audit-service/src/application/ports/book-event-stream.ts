@@ -6,5 +6,6 @@ export interface BookEventDelivery {
 export interface BookEventStream {
   ensureGroup(): Promise<void>;
   readNew(count?: number, blockMs?: number): Promise<BookEventDelivery[]>;
+  claimStale(minIdleMs: number, count?: number): Promise<BookEventDelivery[]>;
   acknowledge(id: string): Promise<void>;
 }

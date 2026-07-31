@@ -7,6 +7,7 @@ import { MysqlAuditLogStore } from './infrastructure/mysql/mysql-audit-log-store
 import { connectBookEventStream } from './infrastructure/redis/redis-book-event-stream.js';
 
 const port = Number(process.env.PORT ?? 3000);
+const staleEntryIdleMs = 60_000;
 
 void startServer(port, initializeStorage, async () => {
   const stream = await connectBookEventStream();
@@ -26,7 +27,7 @@ async function consumeNewEvents(stream: Awaited<ReturnType<typeof connectBookEve
 
   while (process.exitCode === undefined) {
     try {
-      const duplicates = await consumer.execute();
+      const duplicates = await consumer.reclaimStale(staleEntryIdleMs) + await consumer.execute();
 
       if (duplicates > 0) {
         console.info(`Acknowledged ${duplicates} duplicate Audit event ${duplicates === 1 ? 'delivery' : 'deliveries'}.`);

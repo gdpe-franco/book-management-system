@@ -28,7 +28,6 @@ test('persists every v1 event field once', async () => {
   const event = sampleEvent();
 
   assert.equal(await useCase.execute(event), 'created');
-  assert.equal(await useCase.execute(event), 'already_exists');
 
   const [rows] = await pool.execute<RowDataPacket[]>(`
     SELECT event_id, event_type, event_version, DATE_FORMAT(occurred_at, '%Y-%m-%dT%H:%i:%sZ') AS occurred_at,

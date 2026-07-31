@@ -61,6 +61,19 @@ test('leaves an invalid delivery pending', async () => {
   assert.equal((await redis.xPendingRange('book-events', 'audit-service', '-', '+', 10)).length, 1);
 });
 
+test('reclaims and acknowledges a stale delivery', async () => {
+  await redis.xAdd('book-events', '*', sampleFields());
+  const interruptedConsumer = new RedisBookEventStream(redis, 'interrupted-consumer');
+
+  await interruptedConsumer.readNew();
+
+  assert.equal(await consumer.reclaimStale(0), 0);
+  assert.deepEqual(await redis.xPendingRange('book-events', 'audit-service', '-', '+', 10), []);
+
+  const [rows] = await mysql.query<RowDataPacket[]>('SELECT COUNT(*) AS total FROM audit_logs');
+  assert.equal(rows[0]?.total, 1);
+});
+
 function sampleFields(): Record<string, string> {
   return {
     event_id: '0f4e5655-2e70-4381-b0b6-c6903b0e1bb2',
