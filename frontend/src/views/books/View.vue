@@ -333,15 +333,9 @@ onMounted(() => void loadBooks());
 
 <template>
   <section class="books-page">
-    <div class="books-heading">
-      <div>
-        <p class="card-kicker">Catalog</p>
-        <h2>Books</h2>
-      </div>
-      <div class="books-heading-actions">
-        <p>{{ pagination.total }} active books</p>
-        <Button label="Create book" @click="openCreate" />
-      </div>
+    <div class="books-heading-actions">
+      <p>{{ pagination.total }} active books</p>
+      <Button label="Create book" @click="openCreate" />
     </div>
 
     <Card class="books-filters">

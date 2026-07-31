@@ -128,11 +128,7 @@ onMounted(() => void loadUsers());
 
 <template>
   <section class="books-page">
-    <div class="books-heading">
-      <div>
-        <p class="card-kicker">Accounts</p>
-        <h2>Users</h2>
-      </div>
+    <div class="books-heading-actions">
       <p>{{ pagination.total }} registered users</p>
     </div>
 

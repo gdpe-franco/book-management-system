@@ -150,11 +150,7 @@ onMounted(() => void loadAuditLogs());
 
 <template>
   <section class="books-page">
-    <div class="books-heading">
-      <div>
-        <p class="card-kicker">Activity</p>
-        <h2>Audit logs</h2>
-      </div>
+    <div class="books-heading-actions">
       <p>{{ pagination.total }} audit logs</p>
     </div>
 

@@ -410,19 +410,13 @@ a:focus-visible {
   width: min(100%, 70rem);
 }
 
-.content-card,
-.placeholder-card {
+.content-card {
   border: 1px solid var(--app-border);
   box-shadow: 0 12px 30px rgb(55 37 53 / 0.05);
   max-width: 42rem;
 }
 
-.placeholder-card {
-  width: min(100%, 32rem);
-}
-
-.content-card p,
-.placeholder-card p {
+.content-card p {
   color: var(--app-muted);
   line-height: 1.6;
 }
@@ -446,35 +440,17 @@ a:focus-visible {
   margin: 0.25rem 0 0;
 }
 
-.feature-placeholder {
-  padding: 0;
-}
-
+.dashboard-page,
 .books-page {
   display: grid;
   gap: 1.25rem;
-}
-
-.books-heading {
-  align-items: center;
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
-}
-
-.books-heading h2 {
-  margin: 0.25rem 0 0;
-}
-
-.books-heading > p {
-  color: var(--app-muted);
-  margin: 0;
 }
 
 .books-heading-actions {
   align-items: center;
   display: flex;
   gap: 1rem;
+  justify-self: end;
 }
 
 .books-heading-actions p {
@@ -499,6 +475,10 @@ a:focus-visible {
   font-size: 0.85rem;
   font-weight: 600;
   gap: 0.4rem;
+}
+
+.books-filter-form .p-inputtext {
+  width: 100%;
 }
 
 .books-filter-actions {
@@ -558,6 +538,69 @@ a:focus-visible {
   margin: 0;
 }
 
+.book-carousel {
+  min-width: 0;
+}
+
+.book-carousel-heading {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.book-carousel-heading span {
+  color: var(--app-muted);
+  font-size: 0.85rem;
+}
+
+.book-carousel ul {
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  overflow-x: auto;
+  padding: 0.25rem 0 0.75rem;
+  scroll-snap-type: x mandatory;
+}
+
+.book-cover {
+  background: #516b8a;
+  border-radius: 0.4rem;
+  box-shadow: 0 10px 18px rgb(55 37 53 / 0.18);
+  color: #fff;
+  display: flex;
+  flex: 0 0 9rem;
+  flex-direction: column;
+  font-family: Georgia, serif;
+  justify-content: space-between;
+  min-height: 13rem;
+  padding: 1rem;
+  scroll-snap-align: start;
+}
+
+.book-cover:nth-child(2n) {
+  background: #9d5d65;
+}
+
+.book-cover:nth-child(3n) {
+  background: #607d65;
+}
+
+.book-cover:nth-child(5n) {
+  background: #806b44;
+}
+
+.book-cover span {
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+
+.book-cover small {
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+}
+
 @media (max-width: 767px) {
   .app-shell {
     display: block;
@@ -605,9 +648,8 @@ a:focus-visible {
     padding: 1rem;
   }
 
-  .books-heading {
-    align-items: flex-start;
-    flex-direction: column;
+  .books-filters {
+    width: 100%;
   }
 
   .books-filter-form {
