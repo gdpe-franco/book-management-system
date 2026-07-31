@@ -10,13 +10,18 @@ export type AuditLogNotification = {
 
 type NotificationState = {
   notifications: AuditLogNotification[];
+  latestAuditLogEventId: string | null;
   userId: number | null;
 };
 
 let socket: Socket | undefined;
 
 export const useNotificationStore = defineStore("notifications", {
-  state: (): NotificationState => ({ notifications: [], userId: null }),
+  state: (): NotificationState => ({
+    notifications: [],
+    latestAuditLogEventId: null,
+    userId: null,
+  }),
 
   getters: {
     unreadCount: (state) => state.notifications.length,
@@ -50,6 +55,7 @@ export const useNotificationStore = defineStore("notifications", {
         return;
       }
 
+      this.latestAuditLogEventId = auditLog.event_id;
       this.notifications.unshift(auditLog);
       saveNotifications(this.userId, this.notifications);
     },
@@ -72,6 +78,7 @@ export const useNotificationStore = defineStore("notifications", {
 
       this.disconnect();
       this.notifications = [];
+      this.latestAuditLogEventId = null;
       this.userId = null;
       if (userId !== null) localStorage.removeItem(notificationKey(userId));
     },

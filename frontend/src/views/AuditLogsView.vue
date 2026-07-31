@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import Button from "primevue/button";
 import Card from "primevue/card";
@@ -8,6 +8,7 @@ import DataTable from "primevue/datatable";
 import InputText from "primevue/inputtext";
 import { auditApiHost } from "../audit-service";
 import { useAuthStore } from "../stores/auth";
+import { useNotificationStore } from "../stores/notifications";
 
 type AuditLog = {
   event_id: string;
@@ -34,6 +35,7 @@ type SortEvent = {
 };
 
 const auth = useAuthStore();
+const notifications = useNotificationStore();
 const route = useRoute();
 const router = useRouter();
 const loading = ref(true);
@@ -146,6 +148,13 @@ function rowClass(log: AuditLog): string | undefined {
 }
 
 onMounted(() => void loadAuditLogs());
+
+watch(
+  () => notifications.latestAuditLogEventId,
+  (eventId) => {
+    if (eventId !== null) void loadAuditLogs(pagination.value.current_page);
+  },
+);
 </script>
 
 <template>
