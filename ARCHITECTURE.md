@@ -206,6 +206,8 @@ Book write fields are `title`, `author`, `isbn`, and `published_year`. Laravel r
 
 Audit history uses the same list parameter names as Books: `page`, `per_page`, `search`, `sort_by`, and `sort_direction`. Its search is a trimmed, case-insensitive contains match over `event_type`, `event_id`, and `book_snapshot.title` when that snapshot value exists; logs without a title simply do not match the title branch. Sortable fields are `event_type`, `event_id`, `actor_id`, and `occurred_at`. Without a requested sort it remains ordered by `occurred_at DESC`, then `persisted_at DESC`, then `event_id DESC`.
 
+User listing is superadmin-only and uses the same list parameter names: `page`, `per_page`, `search`, `sort_by`, and `sort_direction`. Its search is a trimmed, case-insensitive contains match over `name` and `email`; sortable fields are `name`, `email`, `role`, and `created_at`. Without a requested sort it is ordered by `created_at DESC`, then `id DESC`. Each user response contains only `id`, `name`, `email`, `role`, and `created_at`; user roles are not mutable through the API.
+
 ## Event contract — v1
 
 Laravel appends this JSON message to Redis Stream `book-events` after the MySQL transaction commits:

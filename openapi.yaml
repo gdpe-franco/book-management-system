@@ -217,6 +217,30 @@ paths:
           $ref: '#/components/responses/Unauthenticated'
         '404':
           $ref: '#/components/responses/NotFound'
+  /api/v1/users:
+    get:
+      tags: [Users]
+      summary: List registered users
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+        - $ref: '#/components/parameters/UserSearch'
+        - $ref: '#/components/parameters/UserSortBy'
+        - $ref: '#/components/parameters/SortDirection'
+      responses:
+        '200':
+          description: Paginated registered users, newest first by default.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUsers'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
 components:
   securitySchemes:
     bearerAuth:
@@ -253,7 +277,7 @@ components:
           format: password
     User:
       type: object
-      required: [id, name, email, role]
+      required: [id, name, email, role, created_at]
       properties:
         id:
           type: integer
@@ -265,6 +289,9 @@ components:
         role:
           type: string
           enum: [admin, superadmin]
+        created_at:
+          type: string
+          format: date-time
     Book:
       type: object
       required: [id, title, author, isbn, published_year]
@@ -327,6 +354,26 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Book'
+        meta:
+          type: object
+          required: [current_page, last_page, per_page, total]
+          properties:
+            current_page:
+              type: integer
+            last_page:
+              type: integer
+            per_page:
+              type: integer
+            total:
+              type: integer
+    PaginatedUsers:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
         meta:
           type: object
           required: [current_page, last_page, per_page, total]
@@ -438,6 +485,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorMessage'
+    Forbidden:
+      description: The authenticated user is not authorized for this action.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
     ServerError:
       description: The service could not complete the request.
       content:
@@ -477,6 +530,19 @@ components:
       schema:
         type: string
         enum: [title, author, isbn, published_year]
+    UserSearch:
+      name: search
+      in: query
+      description: Trimmed, case-insensitive contains search across name and email.
+      schema:
+        type: string
+        maxLength: 255
+    UserSortBy:
+      name: sort_by
+      in: query
+      schema:
+        type: string
+        enum: [name, email, role, created_at]
     SortDirection:
       name: sort_direction
       in: query
