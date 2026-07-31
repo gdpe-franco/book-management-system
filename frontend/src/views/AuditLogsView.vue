@@ -6,6 +6,7 @@ import Card from "primevue/card";
 import Column from "primevue/column";
 import DataTable from "primevue/datatable";
 import InputText from "primevue/inputtext";
+import { auditApiHost } from "../audit-service";
 import { useAuthStore } from "../stores/auth";
 
 type AuditLog = {
@@ -31,12 +32,6 @@ type SortEvent = {
   sortField?: string | ((item: unknown) => string);
   sortOrder?: 1 | -1 | 0 | null;
 };
-
-const auditApiHost = import.meta.env.VITE_AUDIT_API_HOST;
-
-if (auditApiHost === undefined) {
-  throw new Error("VITE_AUDIT_API_HOST is required.");
-}
 
 const auth = useAuthStore();
 const router = useRouter();

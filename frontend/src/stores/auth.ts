@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { useNotificationStore } from "./notifications";
 
 type User = {
   id: number;
@@ -24,6 +25,7 @@ export const useAuthStore = defineStore("auth", {
 
   actions: {
     clear() {
+      useNotificationStore().clear();
       this.token = null;
       this.user = null;
       localStorage.removeItem(tokenKey);

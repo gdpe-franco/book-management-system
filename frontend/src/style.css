@@ -232,6 +232,44 @@ a:focus-visible {
   padding: 0.1rem;
 }
 
+.header-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.notification-button {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e8dce5;
+  border-radius: 999px;
+  color: #74445f;
+  cursor: pointer;
+  display: inline-flex;
+  height: 2.25rem;
+  justify-content: center;
+  position: relative;
+  width: 2.25rem;
+}
+
+.notification-count {
+  align-items: center;
+  background: #9d3d55;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  display: inline-flex;
+  font-size: 0.65rem;
+  font-weight: 700;
+  height: 1.2rem;
+  justify-content: center;
+  min-width: 1.2rem;
+  padding: 0 0.2rem;
+  position: absolute;
+  right: -0.35rem;
+  top: -0.35rem;
+}
+
 .header-menu-panel {
   background: #fff;
   border: 1px solid #e8dce5;
@@ -269,6 +307,53 @@ a:focus-visible {
   gap: 0.4rem;
   min-width: 13rem;
   padding: 0.85rem;
+}
+
+.notification-menu-panel {
+  min-width: min(20rem, calc(100vw - 2rem));
+}
+
+.notification-menu-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0.25rem 0.5rem;
+}
+
+.notification-menu-heading .p-button {
+  padding: 0.25rem;
+}
+
+.notification-empty {
+  color: #6d5a68;
+  margin: 0;
+  padding: 0.65rem;
+}
+
+.notification-list {
+  display: grid;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  max-height: 18rem;
+  overflow: auto;
+  padding: 0;
+}
+
+.notification-list li {
+  border-radius: 0.4rem;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.65rem;
+}
+
+.notification-list li:hover {
+  background: #f1e5ed;
+}
+
+.notification-list span {
+  color: #6d5a68;
+  font-size: 0.85rem;
 }
 
 .profile-menu-panel small {

@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 import Button from "primevue/button";
 import { useAuthStore } from "../stores/auth";
+import { useNotificationStore } from "../stores/notifications";
 
 const auth = useAuthStore();
+const notifications = useNotificationStore();
 const route = useRoute();
 const router = useRouter();
 const loggingOut = ref(false);
 const sidebarCollapsed = ref(false);
 const navigationMenu = ref<HTMLDetailsElement | null>(null);
 const profileMenu = ref<HTMLDetailsElement | null>(null);
+const notificationMenu = ref<HTMLDetailsElement | null>(null);
 const initials = computed(
   () => auth.user?.name.slice(0, 1).toUpperCase() ?? "?",
 );
@@ -34,7 +37,11 @@ async function logout(): Promise<void> {
 }
 
 function closeMenus(): void {
-  for (const menu of [navigationMenu.value, profileMenu.value]) {
+  for (const menu of [
+    navigationMenu.value,
+    notificationMenu.value,
+    profileMenu.value,
+  ]) {
     menu?.removeAttribute("open");
   }
 }
@@ -42,6 +49,27 @@ function closeMenus(): void {
 function toggleSidebar(): void {
   sidebarCollapsed.value = !sidebarCollapsed.value;
 }
+
+function clearNotifications(): void {
+  notifications.clear();
+  closeMenus();
+}
+
+function notificationTitle(notification: {
+  book_snapshot: { title?: unknown };
+}): string {
+  return typeof notification.book_snapshot.title === "string"
+    ? notification.book_snapshot.title
+    : "Unknown book";
+}
+
+onMounted(() => {
+  if (auth.user !== null && auth.token !== null) {
+    notifications.connect(auth.user.id, auth.token);
+  }
+});
+
+onUnmounted(() => notifications.disconnect());
 </script>
 
 <template>
@@ -104,23 +132,65 @@ function toggleSidebar(): void {
           <p class="header-kicker">Workspace</p>
           <h1>{{ pageTitle }}</h1>
         </div>
-        <details ref="profileMenu" class="header-menu profile-menu">
-          <summary class="profile-button" aria-label="Open profile menu">
-            <span class="avatar" aria-hidden="true">{{ initials }}</span>
-          </summary>
-          <div class="header-menu-panel profile-menu-panel">
-            <strong>{{ auth.user?.name }}</strong>
-            <small>{{ auth.user?.role }}</small>
-            <RouterLink to="/profile" @click="closeMenus">Profile</RouterLink>
-            <Button
-              label="Log out"
-              :loading="loggingOut"
-              severity="secondary"
-              text
-              @click="logout"
-            />
-          </div>
-        </details>
+        <div class="header-actions">
+          <details ref="notificationMenu" class="header-menu notification-menu">
+            <summary
+              class="notification-button"
+              :aria-label="`Open notifications (${notifications.unreadCount} unread)`"
+            >
+              <i class="pi pi-bell" aria-hidden="true" />
+              <span
+                v-if="notifications.unreadCount > 0"
+                class="notification-count"
+                >{{ notifications.unreadCount }}</span
+              >
+            </summary>
+            <div class="header-menu-panel notification-menu-panel">
+              <div class="notification-menu-heading">
+                <strong>Notifications</strong>
+                <Button
+                  v-if="notifications.unreadCount > 0"
+                  label="Clear all"
+                  severity="secondary"
+                  text
+                  @click="clearNotifications"
+                />
+              </div>
+              <p
+                v-if="notifications.unreadCount === 0"
+                class="notification-empty"
+              >
+                No new audit logs.
+              </p>
+              <ul v-else class="notification-list">
+                <li
+                  v-for="notification in notifications.notifications"
+                  :key="notification.event_id"
+                >
+                  <strong>{{ notification.event_type }}</strong>
+                  <span>{{ notificationTitle(notification) }}</span>
+                </li>
+              </ul>
+            </div>
+          </details>
+          <details ref="profileMenu" class="header-menu profile-menu">
+            <summary class="profile-button" aria-label="Open profile menu">
+              <span class="avatar" aria-hidden="true">{{ initials }}</span>
+            </summary>
+            <div class="header-menu-panel profile-menu-panel">
+              <strong>{{ auth.user?.name }}</strong>
+              <small>{{ auth.user?.role }}</small>
+              <RouterLink to="/profile" @click="closeMenus">Profile</RouterLink>
+              <Button
+                label="Log out"
+                :loading="loggingOut"
+                severity="secondary"
+                text
+                @click="logout"
+              />
+            </div>
+          </details>
+        </div>
       </header>
       <main class="app-main"><slot /></main>
     </div>
